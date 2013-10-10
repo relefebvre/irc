@@ -119,10 +119,9 @@ int main(int argc, char **argv)
             for(list<Client*>::iterator i=client.begin(); i != client.end() ; ++i)
                         if (FD_ISSET((*i)->getSock(), &readfd))
                         {
-                            while(read((*i)->getSock(),buf,sizeof(buf)))
-                            {
-                                cout << buf;
-                            }
+                            read((*i)->getSock(),buf,sizeof(buf));
+                            cout << buf;
+
                         }
 
 
