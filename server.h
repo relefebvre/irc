@@ -21,5 +21,7 @@ using namespace std;
 
 
 void init_sockaddr (struct sockaddr_in *name, const char *hostname, uint16_t port);
+void addAllSockets(list<Client*> client, fd_set *readfd, int sock);
+void closeAllSockets(list<Client*> client);
 
 #endif // SERVER_H

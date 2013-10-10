@@ -10,3 +10,8 @@ Client::Client(int newSock, string newName)
 
     this->name = newName;
 }
+
+int Client::getSock()
+{
+    return this->sock;
+}

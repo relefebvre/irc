@@ -15,6 +15,8 @@ public:
     static int maxSock;
 
     Client(int newSock, string newName);
+
+    int getSock();
 };
 
 #endif // CLIENT_H

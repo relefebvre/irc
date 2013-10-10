@@ -58,8 +58,7 @@ int main(int argc, char **argv)
     init_sockaddr(&sin,argv[2],port);
 	
 
-	while (1)
-    {
+
 
         sock=socket(AF_INET,SOCK_STREAM,0);
 
@@ -90,10 +89,10 @@ int main(int argc, char **argv)
 		
 		
 		while(fgets(buf,sizeof(buf),stdin))
+		{
 			write(sock,buf,strlen(buf));
-	
+		}
 		
-	}
 	
 	
 	close(sock);
