@@ -6,5 +6,6 @@ SOURCES += main.cpp \
     client.cpp
 
 HEADERS += \
-    client.h
+    client.h \
+    server.h
 
