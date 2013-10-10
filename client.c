@@ -91,6 +91,8 @@ int main(int argc, char **argv)
 		while(fgets(buf,sizeof(buf),stdin))
 		{
 			write(sock,buf,strlen(buf));
+			fflush(stdin);
+
 		}
 		
 	

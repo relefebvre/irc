@@ -144,7 +144,7 @@ int main(int argc, char **argv)
                         {
                             read((*i)->getSock(),buf,sizeof(buf));
                             cout << buf;
-
+                            fflush(stdout);
                         }
 
 
