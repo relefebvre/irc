@@ -21,3 +21,8 @@ int Client::getSock()
 {
     return this->sock;
 }
+
+string Client::getName()
+{
+    return this->name;
+}

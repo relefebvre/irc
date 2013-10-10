@@ -3,9 +3,10 @@ CONFIG += console
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    client.cpp
+    client.cpp \
+    message.cpp
 
 HEADERS += \
     client.h \
-    server.h
+    message.h
 

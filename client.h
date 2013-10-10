@@ -17,6 +17,8 @@ public:
     Client(int newSock, string newName);
 
     int getSock();
+
+    string getName();
 };
 
 #endif // CLIENT_H
