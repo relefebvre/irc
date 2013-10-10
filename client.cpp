@@ -1,3 +1,9 @@
+/*
+  Auteurs : Ducros Alix & Lefebvre De Ladonchamps Rémi
+  Fichier : client.cpp
+  Fonctionnement : Classe Client.
+ */
+
 #include "client.h"
 
 int Client::maxSock = 0;

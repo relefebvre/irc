@@ -1,5 +1,13 @@
+/*
+  Auteurs : Ducros Alix & Lefebvre De Ladonchamps Rémi
+  Fichier : main.cpp
+  Fonctionnement : Serveur IRC.
+ */
+
 #include "server.h"
 
+
+/*Initialisation de la socket name*/
 
 void init_sockaddr (struct sockaddr_in *name,
                const char *hostname,
@@ -19,6 +27,11 @@ void init_sockaddr (struct sockaddr_in *name,
 }
 
 
+/*
+  Ajoute chaque socket de chauque client de la liste client,
+  dans readfd.
+ */
+
 void addAllSockets(list<Client*> client, fd_set *readfd, int sock)
 {
     FD_ZERO(readfd);
@@ -30,6 +43,11 @@ void addAllSockets(list<Client*> client, fd_set *readfd, int sock)
         FD_SET((*i)->getSock(), readfd);
     }
 }
+
+
+/*
+  Ferme chaque socket de chaque client de la liste client.
+ */
 
 void closeAllSockets(list<Client*> client)
 {
@@ -43,6 +61,11 @@ void closeAllSockets(list<Client*> client)
     }
 }
 
+
+
+/*
+  Argument : port : si absent 1025 par défaut.
+ */
 
 int main(int argc, char **argv)
 {
