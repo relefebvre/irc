@@ -21,33 +21,13 @@
 #include <iterator>
 #include "client.h"
 #include "message.h"
+#include "server.h"
 
 using namespace std;
 
 
-void init_sockaddr (struct sockaddr_in *name, const char *hostname, uint16_t port);
 void addAllSockets(list<Client*> client, fd_set *readfd, int sock);
 void closeAllSockets(list<Client*> client);
-
-
-/*Initialisation de la socket name*/
-
-void init_sockaddr (struct sockaddr_in *name,
-                    const char *hostname,
-                    uint16_t port)
-{
-    struct hostent *hostinfo;
-
-    name->sin_family = AF_INET;   /* Adresses IPV4 (Internet) */
-    name->sin_port = htons (port); /* On gère le little/big Endian */
-    hostinfo = gethostbyname (hostname); /* appeler les fonctions de résolution de nom de la libC */
-    if (hostinfo == NULL) /* Si ne peut transformer le nom de la machine en adresse IP */
-    {
-        fprintf (stderr, "Unknown host %s.\n", hostname);
-        exit (EXIT_FAILURE);
-    }
-    name->sin_addr = *(struct in_addr *) hostinfo->h_addr_list[0]; /* Le dernier champs de la structure est garni */
-}
 
 
 /*
@@ -104,12 +84,9 @@ void broadcast(Message* mess, list<Client*> client)
 
 int main(int argc, char **argv)
 {
-
+    Server serv;
     unsigned port;
     fd_set readfd;
-    struct sockaddr_in sin, csin;
-    int sock=socket(AF_INET,SOCK_STREAM,0);
-    socklen_t taille=sizeof(csin);
     list<Client*> clients;
     list<Message*> messages;
 
@@ -117,7 +94,7 @@ int main(int argc, char **argv)
         if ( sscanf(argv[1],"%u",&port) != 1  )
         {
             fprintf(stderr,"Numéro de port invalide\n");
-            close(sock);
+            serv.closeSockServ();
             exit(1);
         }
 
@@ -128,44 +105,28 @@ int main(int argc, char **argv)
 
     cout << "Port ouvert : " << port << endl;
 
-    if (sock+1 > Client::maxSock)
-        Client::maxSock = sock+1;
+    serv.init(port);
 
-    init_sockaddr(&sin,"0.0.0.0",port);
-
-    if (bind(sock,(struct sockaddr *) &sin, sizeof(sin)) != 0)
-    {
-        perror("Erreur lors du bind de la socket") ;
-        close(sock) ;
-        exit(1) ;
-    }
-
-    if(listen(sock, 5) != 0)
-    {
-        perror("Listen non réussi ") ;
-        close(sock) ;
-        exit(1) ;
-    }
+    if (serv.getSock()+1 > Client::maxSock)
+        Client::maxSock = serv.getSock()+1;
 
     while(1)
     {
+        char buf[4096];
+        unsigned tbuf = sizeof(buf);
 
-        addAllSockets(clients, &readfd, sock);
-
+        addAllSockets(clients, &readfd, serv.getSock());
 
         if ( select(Client::maxSock,&readfd, NULL, NULL, NULL) == -1) {
             perror("Select ");
             closeAllSockets(clients);
-            close(sock);
+            serv.closeSockServ();
             exit(1);
         }
 
-        if (FD_ISSET(sock, &readfd))
+        if (FD_ISSET(serv.getSock(), &readfd))
         {
-            char buf[4096];
-            unsigned tbuf = sizeof(buf);
-            Client *client = new Client(accept(sock,(struct sockaddr *) &csin, &taille),"default");
-
+            Client *client = new Client(serv.conect(),"default");
             clients.push_back(client);
             printf("Client connecté\n");
             assert(write(client->getSock(),&tbuf,sizeof(tbuf)) != -1 );
@@ -175,8 +136,6 @@ int main(int argc, char **argv)
         for(list<Client*>::iterator i=clients.begin(); i != clients.end() ; ++i)
             if (FD_ISSET((*i)->getSock(), &readfd))
             {
-                char buf[4096];
-
                 read((*i)->getSock(),buf,sizeof(buf));
                 if(buf[strlen(buf)-1]=='\n')
                     buf[strlen(buf)-1]='\0';
@@ -190,7 +149,7 @@ int main(int argc, char **argv)
 
     closeAllSockets(clients);
     clients.erase(clients.begin(),clients.end());
-    close(sock);
+    serv.closeSockServ();
 
     return 0;
 }

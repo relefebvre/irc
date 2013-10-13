@@ -4,9 +4,11 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     client.cpp \
-    message.cpp
+    message.cpp \
+    server.cpp
 
 HEADERS += \
     client.h \
-    message.h
+    message.h \
+    server.h
 
