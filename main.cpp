@@ -91,10 +91,8 @@ void broadcast(Message* mess, list<Client*> client)
     string message;
 
     message = mess->getMess() + " : " + mess->getName();
-    message="Yoooooooo";
     for (list<Client*>::iterator i=client.begin() ; i != client.end() ; ++i)
     {
-        cout << "test mess : " << message<<endl;
         write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
     }
 }
@@ -106,7 +104,6 @@ void broadcast(Message* mess, list<Client*> client)
 
 int main(int argc, char **argv)
 {
-    fprintf(stderr,"Numéro de port invalide\n");
 
     unsigned port;
     fd_set readfd;
@@ -181,7 +178,9 @@ int main(int argc, char **argv)
                 char buf[4096];
 
                 read((*i)->getSock(),buf,sizeof(buf));
-                cout << buf << (*i)->getName();
+                if(buf[strlen(buf)-1]=='\n')
+                    buf[strlen(buf)-1]='\0';
+                cout << "Message lu : "<< buf << endl;
                 Message *mess=new Message(buf,(*i)->getName());
                 messages.push_back(mess);
                 broadcast(mess,clients);
