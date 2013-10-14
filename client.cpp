@@ -8,13 +8,11 @@
 
 int Client::maxSock = 0;
 
-Client::Client(int newSock, string newName)
+Client::Client(int sock)
+    :sock(sock)
 {
-    this->sock = newSock;
-    if (newSock+1 > Client::maxSock)
-        Client::maxSock = newSock+1;
-
-    this->name = newName;
+    if (sock+1 > Client::maxSock)
+        Client::maxSock = sock+1;
 }
 
 int Client::getSock()
@@ -25,6 +23,11 @@ int Client::getSock()
 string Client::getName()
 {
     return this->name;
+}
+
+void Client::setName(string name)
+{
+    this->name = name;
 }
 
 void Client::setChan(Channel *newChan)

@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <map>
 
-#include <channel.h>
+#include "channel.h"
 
 
 
@@ -30,6 +30,7 @@ public:
     void closeSockServ();
     //Méthode sur les chan
     Channel* channelByName(string chanName); //trouve un channel en fonction de son nom
+    void addChan(string chanName, Channel *chan);
 
 
 };

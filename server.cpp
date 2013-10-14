@@ -58,3 +58,20 @@ void Server::closeSockServ()
     close(sock);
 }
 
+
+Channel* Server::channelByName(string chanName)
+{
+    map<string , Channel*>::const_iterator ch(chanMap.find(chanName));
+
+    for(map<string , Channel*>::const_iterator it=chanMap.begin() ; it!=chanMap.end() ; it++)
+        if (it == ch)
+            return it->second;
+
+    return NULL;
+}
+
+void Server::addChan(string chanName, Channel *chan)
+{
+    chanMap.insert(make_pair(chanName, chan));
+}
+

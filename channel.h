@@ -13,14 +13,16 @@ class Client ;
 
 class Channel
 {
-    private :
-        string chanName ;
-        string op ;     //Nom du client ayant les droits d'OP sur le channel
+private :
+    string chanName ;
+    string op ;     //Nom du client ayant les droits d'OP sur le channel
 
-        list<Client *> users ;
+    list<Client *> users ;
 
-    public:
-        Channel(string chanName, string op);
+public:
+    Channel(string chanName, string op);
+    string getOpName();
+    string getChanName();
 
 };
 

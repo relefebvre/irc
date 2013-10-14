@@ -33,7 +33,6 @@ void init_sockaddr (struct sockaddr_in *name,
 
 int main(int argc, char **argv)
 {
-    //char *buf;
     string buf;
     int tbuf, retval;
     int sock ;
@@ -41,21 +40,34 @@ int main(int argc, char **argv)
     fd_set readfd;
     struct sockaddr_in sin;
     char IPdefault[10] = "127.0.0.1" ;
+    char nameClt[40];
 
     if (argc >= 2)
-        if ( sscanf(argv[1],"%u",&port) != 1  )
+    {
+
+
+        if (sscanf(argv[1],"%s",nameClt) != 1 )
+        {
+            fprintf(stderr,"Nom de client invalide\n");
+            exit(1);
+        }
+    }
+
+    if (argc >= 3 )
+    {
+        if(sscanf(argv[2],"%u",&port) != 1 )
         {
             fprintf(stderr,"Numéro de port invalide\n");
             exit(1);
         }
+    }
 
-
-    if (argc < 2)
+    if (argc < 3)
     {
         port = 1025 ;
     }
 
-    if (argc < 3)
+    if (argc < 4)
     {
         argv[2] = IPdefault ;
     }
@@ -83,6 +95,8 @@ int main(int argc, char **argv)
 
     printf("Taille du buffer : %d\n",tbuf);
 
+    write(sock,nameClt,strlen(nameClt));
+
 
     while(1)
     {
@@ -107,7 +121,7 @@ int main(int argc, char **argv)
             read(sock,buf,tbuf);
             if(buf[strlen(buf)-1]=='\n')
                 buf[strlen(buf)-1]='\0';
-             cout << "Message reçu : " << buf << endl;
+            cout << "Message reçu : " << buf << endl;
         }
 
         if (FD_ISSET(0, &readfd))
@@ -119,7 +133,7 @@ int main(int argc, char **argv)
             {
                 buf[strlen(buf)-1]='\0';
                 ++nbLu;
-             }
+            }
             write(sock,buf,nbLu);
         }
     }

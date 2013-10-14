@@ -18,11 +18,12 @@ public:
 
     static int maxSock;
 
-    Client(int newSock, string newName);
+    Client(int sock);
 
     int getSock();
 
     string getName();
+    void setName(string name);
 
     void setChan(Channel *newChan);
 };
