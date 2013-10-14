@@ -21,3 +21,13 @@ int Client::getSock()
 {
     return this->sock;
 }
+
+string Client::getName()
+{
+    return this->name;
+}
+
+void Client::setChan(Channel *newChan)
+{
+    chanActif = newChan ;
+}
