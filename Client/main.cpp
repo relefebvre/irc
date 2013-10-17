@@ -36,12 +36,13 @@ int main(int argc, char **argv)
     string buf;
     int tbuf, retval;
     int sock ;
-    uint port ;
+    uint port = 1025 ;
     fd_set readfd;
     struct sockaddr_in sin;
     char IPdefault[10] = "127.0.0.1" ;
-    char nameClt[40];
-
+    char nameClt[40] = "Anonyme";
+    int arg = 0, ins = 0;
+/*
     if (argc >= 2)
     {
 
@@ -71,8 +72,49 @@ int main(int argc, char **argv)
     {
         argv[2] = IPdefault ;
     }
+*/
+    for (arg = 1 ; arg < (argc-1); arg+=2) {
+        if (strcmp(argv[arg], "-p") == 0)
+                ins = 1 ;
+        if (strcmp(argv[arg], "-ip") == 0)
+                ins = 2 ;
+        if (strcmp(argv[arg], "-id") == 0)
+                ins = 3 ;
 
-    init_sockaddr(&sin,argv[2],port);
+        switch (ins) {
+            case 1:
+                if(sscanf(argv[arg+1],"%u",&port) != 1 )
+                    {
+                     fprintf(stderr,"Numéro de port invalide\n");
+                     exit(1);
+                     }
+
+                 break;
+            case 2:
+                if (sscanf(argv[arg+1],"%s",IPdefault) != 1 )
+                {
+                    fprintf(stderr,"IP non valide\n");
+                    exit(1);
+                }
+
+                 break;
+            case 3:
+                if (sscanf(argv[arg+1],"%s",nameClt) != 1 )
+                {
+                    fprintf(stderr,"Nom de client invalide\n");
+                    exit(1);
+                }
+
+                 break;
+            default:
+                fprintf(stderr,"Option invalide\n");
+                exit(1);
+                 break;
+        }
+        ins = 0 ;
+    }
+
+    init_sockaddr(&sin,IPdefault,port);
 
 
 
