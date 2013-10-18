@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include "client.h"
+#include "message.h"
 
 
 using namespace std;
@@ -23,6 +24,8 @@ public:
     Channel(string chanName, string op);
     string getOpName();
     string getChanName();
+    int addUser(Client *) ;
+    void broadcast(Message *mess) ;
 
 };
 

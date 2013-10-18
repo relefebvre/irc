@@ -34,15 +34,21 @@ public:
     void init(unsigned port);
     int conect();
     int getSock();
+
     void init_sockaddr (struct sockaddr_in *name, const char *hostname, uint16_t port);
     void closeSockServ();
+
     void addAllSockets(fd_set *readfd) ;
     void closeAllSockets() ;
 
     int writeToClt(Message* mess, string nameClt) ;
 
     void routine();
+
+    void interpreter(char buf[], list<Client *>::iterator i) ;
+
     //Méthode sur les chan
+
     Channel* channelByName(string chanName); //trouve un channel en fonction de son nom
     void addChan(string chanName, Channel *chan);
 

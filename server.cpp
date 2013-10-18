@@ -98,62 +98,7 @@ void Server::routine()
             {
                 read((*i)->getSock(),buf,sizeof(buf));
 
-                if (buf[0] == '/')
-                {
-                    char cmd[10];
-
-                    sscanf(buf,"%*c%s%*c%[^\n]",cmd,buf);
-
-                    if (strcmp("join",cmd)==0)
-                    {
-                        string name(buf);
-                        Channel* chan = channelByName(name);
-                        cout << "Création du channel : "<<name<<endl;
-                        if(chan == NULL)
-                        {
-
-                            chan = new Channel(name, (*i)->getName());
-                            addChan(name,chan);
-                            cout << "Ajout du channel : "<<name<< " à la map."<<endl;
-                            cout << "Oppérateur du channel : "<<chan->getOpName()<<endl;
-                            string message = "Vous êtes l'oppérateur du channel " + chan->getChanName();
-                            write((*i)->getSock(),message.c_str(),strlen(message.c_str()));
-                        }
-                        else
-                        {
-                            cout << "Channel déjà existant"<<endl;
-                        }
-
-                    }
-
-                    if (strcmp("mess",cmd) == 0)
-                    {
-                        char nameClt[40];
-                        sscanf(buf,"%s%*c%[^\n]",nameClt,buf);
-                        Message *mess=new Message(buf,(*i)->getName());
-                        if(writeToClt(mess,nameClt) == -1)
-                        {
-                            string SnameClt(nameClt);
-                            string message = "Le client "+SnameClt+" n'est pas connecté";
-                            write((*i)->getSock(),message.c_str(),strlen(message.c_str()));
-                        }
-                        else
-                            cout<<"Message envoyé"<<endl;
-                    }
-
-                    cout << "Commande : "<<cmd << " reste : "<<buf <<endl;
-                }
-                else
-                {
-
-                    if(buf[strlen(buf)-1]=='\n')
-                        buf[strlen(buf)-1]='\0';
-
-                    cout << "Message lu : "<< buf << endl;
-                    Message *mess=new Message(buf,(*i)->getName());
-                    messages.push_back(mess);
-                    //broadcast(mess,clients);
-                }
+                interpreter(buf, i);
             }
 
     }
@@ -194,13 +139,76 @@ int Server::writeToClt(Message* mess, string nameClt)
 }
 
 
+void Server::interpreter(char buf[], list<Client*>::iterator i)
+{
+    if (buf[0] == '/')
+    {
+        char cmd[10];
 
-/*
-  Ferme chaque socket de chaque client de la liste client.
- */
+        sscanf(buf,"%*c%s%*c%[^\n]",cmd,buf);
+
+        if (strcmp("join",cmd)==0)
+        {
+            string name(buf);
+            Channel* chan = channelByName(name);
+            cout << "Création du channel : "<<name<<endl;
+            if(chan == NULL)
+            {
+
+                chan = new Channel(name, (*i)->getName());
+                addChan(name,chan);
+                cout << "Ajout du channel : "<<name<< " à la map."<<endl;
+                cout << "Oppérateur du channel : "<<chan->getOpName()<<endl;
+                string message = "Vous êtes l'oppérateur du channel " + chan->getChanName();
+                write((*i)->getSock(),message.c_str(),strlen(message.c_str()));
+            }
+            else
+            {
+                cout << "Channel déjà existant"<<endl;
+                chan
+            }
+
+        }
+
+        if (strcmp("mess",cmd) == 0)
+        {
+            char nameClt[40];
+            sscanf(buf,"%s%*c%[^\n]",nameClt,buf);
+            Message *mess=new Message(buf,(*i)->getName());
+            if(writeToClt(mess,nameClt) == -1)
+            {
+                string SnameClt(nameClt);
+                string message = "Le client "+SnameClt+" n'est pas connecté";
+                write((*i)->getSock(),message.c_str(),strlen(message.c_str()));
+            }
+            else
+                cout<<"Message envoyé"<<endl;
+        }
+
+        cout << "Commande : "<<cmd << " reste : "<<buf <<endl;
+    }
+    else
+    {
+
+        if(buf[strlen(buf)-1]=='\n')
+            buf[strlen(buf)-1]='\0';
+
+        cout << "Message lu : "<< buf << endl;
+        Message *mess=new Message(buf,(*i)->getName());
+        messages.push_back(mess);
+        //broadcast(mess,clients);
+    }
+}
+
+
+
+
+
 
 void Server::closeAllSockets()
-{
+{/*
+  Ferme chaque socket de chaque client de la liste client.
+ */
     for(list<Client*>::iterator i=clients.begin() ; i != clients.end() ; ++i)
     {
         if (close((*i)->getSock()) == -1)

@@ -42,19 +42,6 @@ void broadcast(Message* mess, list<Client*> client);
 
 
 
-void broadcast(Message* mess, list<Client*> clients)
-{
-    string message;
-
-    message = mess->getMess() + " : " + mess->getName();
-    for (list<Client*>::iterator i=clients.begin() ; i != clients.end() ; ++i)
-    {
-        write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
-    }
-}
-
-
-
 
 int main(int argc, char **argv)
 {
