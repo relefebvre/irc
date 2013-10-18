@@ -53,20 +53,6 @@ void broadcast(Message* mess, list<Client*> clients)
     }
 }
 
-int writeToClt(Message* mess, list<Client*> clients, string nameClt)
-{
-    string message = mess->getMess();
-
-    for (list<Client*>::iterator i=clients.begin() ; i != clients.end() ; ++i)
-    {
-        if ((*i)->getName() == nameClt)
-        {
-            write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
-            return 0;
-        }
-    }
-    return -1;
-}
 
 
 

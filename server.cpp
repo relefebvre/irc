@@ -113,7 +113,7 @@ void Server::routine()
                         {
 
                             chan = new Channel(name, (*i)->getName());
-                            serv.addChan(name,chan);
+                            addChan(name,chan);
                             cout << "Ajout du channel : "<<name<< " à la map."<<endl;
                             cout << "Oppérateur du channel : "<<chan->getOpName()<<endl;
                             string message = "Vous êtes l'oppérateur du channel " + chan->getChanName();
@@ -131,7 +131,7 @@ void Server::routine()
                         char nameClt[40];
                         sscanf(buf,"%s%*c%[^\n]",nameClt,buf);
                         Message *mess=new Message(buf,(*i)->getName());
-                        if(writeToClt(mess,clients,nameClt) == -1)
+                        if(writeToClt(mess,nameClt) == -1)
                         {
                             string SnameClt(nameClt);
                             string message = "Le client "+SnameClt+" n'est pas connecté";
@@ -159,7 +159,7 @@ void Server::routine()
     }
 
 
-    serv.closeAllSockets();
+    closeAllSockets();
     clients.erase(clients.begin(),clients.end());
     closeSockServ();
 }

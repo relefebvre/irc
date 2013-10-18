@@ -38,6 +38,9 @@ public:
     void closeSockServ();
     void addAllSockets(fd_set *readfd) ;
     void closeAllSockets() ;
+
+    int writeToClt(Message* mess, string nameClt) ;
+
     void routine();
     //Méthode sur les chan
     Channel* channelByName(string chanName); //trouve un channel en fonction de son nom
