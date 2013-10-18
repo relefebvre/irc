@@ -6,11 +6,13 @@ SOURCES += main.cpp \
     client.cpp \
     message.cpp \
     server.cpp \
-    channel.cpp
+    channel.cpp \
+    commande.cpp
 
 HEADERS += \
     client.h \
     message.h \
     server.h \
-    channel.h
+    channel.h \
+    commande.h
 

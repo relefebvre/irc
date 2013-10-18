@@ -8,12 +8,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <string.h>
 #include <errno.h>
 #include <map>
 
 #include "channel.h"
 #include "client.h"
 #include "message.h"
+#include "commande.h"
 
 
 
@@ -33,7 +35,7 @@ public:
     Server();
     void init(unsigned port);
     int conect();
-    int getSock();
+    int getSock() const;
 
     void init_sockaddr (struct sockaddr_in *name, const char *hostname, uint16_t port);
     void closeSockServ();
@@ -41,16 +43,18 @@ public:
     void addAllSockets(fd_set *readfd) ;
     void closeAllSockets() ;
 
-    int writeToClt(Message* mess, string nameClt) ;
+    int writeToClt(const string message, const string nameClt) const ;
 
     void routine();
 
-    void interpreter(char buf[], list<Client *>::iterator i) ;
+    void interpreter(Commande *cde) ;
 
     //Méthode sur les chan
 
     Channel* channelByName(string chanName); //trouve un channel en fonction de son nom
     void addChan(string chanName, Channel *chan);
+
+    Commande* whatIsTrame(int sock);
 
 
 };

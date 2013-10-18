@@ -15,17 +15,17 @@ Client::Client(int sock)
         Client::maxSock = sock+1;
 }
 
-int Client::getSock()
+const int &Client::getSock() const
 {
     return this->sock;
 }
 
-string Client::getName()
+const string & Client::getName() const
 {
     return this->name;
 }
 
-void Client::setName(string name)
+void Client::setName(const string name)
 {
     this->name = name;
 }

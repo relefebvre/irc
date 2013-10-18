@@ -22,10 +22,10 @@ private :
 
 public:
     Channel(string chanName, string op);
-    string getOpName();
-    string getChanName();
-    int addUser(Client *) ;
-    void broadcast(Message *mess) ;
+    const string & getOpName() const;
+    const string & getChanName() const;
+    void addUser(Client *) ;
+    void broadcast(const string message) ;
 
 };
 

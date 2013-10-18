@@ -20,10 +20,10 @@ public:
 
     Client(int sock);
 
-    int getSock();
+    const int & getSock() const;
 
-    string getName();
-    void setName(string name);
+    const string & getName() const;
+    void setName(const string name);
 
     void setChan(Channel *newChan);
 };

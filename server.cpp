@@ -2,7 +2,9 @@
 
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 #include <iostream>
+#include <inttypes.h>
 
 
 
@@ -39,7 +41,7 @@ int Server::conect()
     return test;
 }
 
-int Server::getSock()
+int Server::getSock() const
 {
     return sock;
 }
@@ -96,9 +98,13 @@ void Server::routine()
         for(list<Client*>::iterator i=clients.begin(); i != clients.end() ; ++i)
             if (FD_ISSET((*i)->getSock(), &readfd))
             {
-                read((*i)->getSock(),buf,sizeof(buf));
+                Commande *cde;
 
-                interpreter(buf, i);
+                cde = whatIsTrame((*i)->getSock());
+                interpreter(cde);
+
+
+                exit(1);
             }
 
     }
@@ -123,11 +129,9 @@ void Server::addAllSockets(fd_set *readfd)
 
 
 
-int Server::writeToClt(Message* mess, string nameClt)
+int Server::writeToClt(const string message, const string nameClt) const
 {
-    string message = mess->getMess();
-
-    for (list<Client*>::iterator i=clients.begin() ; i != clients.end() ; ++i)
+    for (list<Client*>::const_iterator i=clients.begin() ; i != clients.end() ; ++i)
     {
         if ((*i)->getName() == nameClt)
         {
@@ -139,9 +143,36 @@ int Server::writeToClt(Message* mess, string nameClt)
 }
 
 
-void Server::interpreter(char buf[], list<Client*>::iterator i)
+void Server::interpreter(Commande *cde)
 {
-    if (buf[0] == '/')
+    switch (cde->getCde()) {
+        case '1' :
+            if (cde->getNbArgs() != 2)
+            {
+                cde->setError("Le nombre d'arguments n'est pas correct");
+                return;
+            }
+            if (cde->getArg(1)[0] == '#')
+            {
+                Channel *chan = channelByName(cde->getArg(1).substr(1));
+
+                if (chan == NULL)
+                    cde->setError("Channel inconnu");
+                else
+                    chan->broadcast(cde->getArg(2));
+            }
+
+            else
+                  if ((writeToClt(cde->getArg(2),cde->getArg(1))) == -1)
+                      cde->setError("Le client désigné n'existe pas");
+            return;
+            break;
+        case '2':
+        break;
+
+    }
+
+   /* if (buf[0] == '/')
     {
         char cmd[10];
 
@@ -165,7 +196,6 @@ void Server::interpreter(char buf[], list<Client*>::iterator i)
             else
             {
                 cout << "Channel déjà existant"<<endl;
-                chan
             }
 
         }
@@ -197,7 +227,8 @@ void Server::interpreter(char buf[], list<Client*>::iterator i)
         Message *mess=new Message(buf,(*i)->getName());
         messages.push_back(mess);
         //broadcast(mess,clients);
-    }
+    }*/
+    return;
 }
 
 
@@ -234,5 +265,37 @@ Channel* Server::channelByName(string chanName)
 void Server::addChan(string chanName, Channel *chan)
 {
     chanMap.insert(make_pair(chanName, chan));
+}
+
+
+Commande* Server::whatIsTrame(int sock)
+{
+    uint16_t idCde, sizeTrame;
+    char cde, buf[4096];
+
+    read(sock,&buf,sizeof(sizeTrame));
+    sscanf(buf,"%hd",&sizeTrame);
+    read(sock,&buf,sizeof(idCde));
+    sscanf(buf,"%hd",&idCde);
+    read(sock,&buf,sizeof(cde));
+    sscanf(buf,"%c",&cde);
+
+    int tbuf=sizeTrame-5;
+
+    read(sock,buf,tbuf);
+
+    Commande *Cde = new Commande(idCde,cde);
+
+
+    char *arg;
+    arg = strtok(buf,"\n");
+
+    while (arg != NULL)
+    {
+        Cde->addArg(arg);
+        arg = strtok(NULL,"\n");
+    }
+
+    return Cde;
 }
 

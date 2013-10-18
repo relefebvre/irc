@@ -109,6 +109,19 @@ int main(int argc, char **argv)
 
     write(sock,nameClt,strlen(nameClt));
 
+    uint16_t idCde = 99, sizeT;
+    char c='1';
+    char tot[]="test\ntast1\ntzst2\ntrst2\n";
+
+    sizeT = sizeof(tot)+5;
+
+    cout<<sizeT<<idCde<<c<<tot<<endl;
+
+    char tot2[sizeT];
+    sprintf(tot2,"%u%u%c%s",sizeT,idCde,c,tot);
+    cout<<tot2<<endl;
+    write(sock,tot2,sizeof(tot2)-1);
+    exit(1);
 
     while(1)
     {
@@ -140,7 +153,7 @@ int main(int argc, char **argv)
 
         if (FD_ISSET(0, &readfd))
         {
-            char buf[tbuf];
+            /*char buf[tbuf];
             int nbLu;
             nbLu = read(0,buf,tbuf);
             if(buf[strlen(buf)-1]=='\n')
@@ -148,7 +161,10 @@ int main(int argc, char **argv)
                 buf[strlen(buf)-1]='\0';
                 ++nbLu;
             }
-            write(sock,buf,nbLu);
+            write(sock,buf,nbLu);*/
+
+
+
         }
     }
 

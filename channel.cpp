@@ -11,31 +11,28 @@ Channel::Channel(string chanName,string op)
 {
 }
 
-string Channel::getOpName()
+const string &Channel::getOpName() const
 {
     return op;
 }
 
 
-string Channel::getChanName()
+const string &Channel::getChanName() const
 {
     return chanName;
 }
 
 
 
-void Channel::broadcast(Message* mess)
+void Channel::broadcast(const string message)
 {
-    string message;
-
-    message = mess->getMess() + " : " + mess->getName();
     for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
     {
         write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
     }
 }
 
-int Server::addUser(Client* newClt)
+void Channel::addUser(Client* newClt)
 {
     users.push_back(newClt);
 }
