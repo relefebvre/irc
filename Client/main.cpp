@@ -42,37 +42,7 @@ int main(int argc, char **argv)
     char IPdefault[10] = "127.0.0.1" ;
     char nameClt[40] = "Anonyme";
     int arg = 0, ins = 0;
-/*
-    if (argc >= 2)
-    {
 
-
-        if (sscanf(argv[1],"%s",nameClt) != 1 )
-        {
-            fprintf(stderr,"Nom de client invalide\n");
-            exit(1);
-        }
-    }
-
-    if (argc >= 3 )
-    {
-        if(sscanf(argv[2],"%u",&port) != 1 )
-        {
-            fprintf(stderr,"Numéro de port invalide\n");
-            exit(1);
-        }
-    }
-
-    if (argc < 3)
-    {
-        port = 1025 ;
-    }
-
-    if (argc < 4)
-    {
-        argv[2] = IPdefault ;
-    }
-*/
     for (arg = 1 ; arg < (argc-1); arg+=2) {
         if (strcmp(argv[arg], "-p") == 0)
                 ins = 1 ;
@@ -160,9 +130,11 @@ int main(int argc, char **argv)
         if (FD_ISSET(sock, &readfd))
         {
             char buf[tbuf];
-            read(sock,buf,tbuf);
-            if(buf[strlen(buf)-1]=='\n')
-                buf[strlen(buf)-1]='\0';
+            int nbLu;
+
+            nbLu = read(sock,buf,tbuf);
+            buf[nbLu]='\0';
+
             cout << "Message reçu : " << buf << endl;
         }
 
