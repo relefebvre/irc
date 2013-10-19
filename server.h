@@ -46,8 +46,9 @@ public:
     int writeToClt(const string message, const string nameClt) const ;
 
     void routine();
+    void closeAll();
 
-    void interpreter(Commande *cde) ;
+    void interpreter(Commande *cde, const string nameClt) ;
 
     //Méthode sur les chan
 
@@ -55,6 +56,8 @@ public:
     void addChan(string chanName, Channel *chan);
 
     Commande* whatIsTrame(int sock);
+
+    list<Client*> searchClt(const string motifClt) const;
 
 
 };

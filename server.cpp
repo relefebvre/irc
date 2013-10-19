@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <inttypes.h>
+#include <regex.h>
 
 
 
@@ -69,8 +70,7 @@ void Server::closeSockServ()
 
 void Server::routine()
 {
-    while(1)
-    {
+
         char buf[4096];
         unsigned tbuf = sizeof(buf);
 
@@ -101,15 +101,15 @@ void Server::routine()
                 Commande *cde;
 
                 cde = whatIsTrame((*i)->getSock());
-                interpreter(cde);
+                cout<<"Commande : "<<cde->getCde()<<endl;
 
-
-                exit(1);
+                interpreter(cde,(*i)->getName());
             }
 
-    }
+}
 
-
+void Server::closeAll()
+{
     closeAllSockets();
     clients.erase(clients.begin(),clients.end());
     closeSockServ();
@@ -135,6 +135,7 @@ int Server::writeToClt(const string message, const string nameClt) const
     {
         if ((*i)->getName() == nameClt)
         {
+            cout<<"Ecriture : "<<message<<endl;
             write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
             return 0;
         }
@@ -143,32 +144,63 @@ int Server::writeToClt(const string message, const string nameClt) const
 }
 
 
-void Server::interpreter(Commande *cde)
+void Server::interpreter(Commande *cde, const string nameClt)
 {
     switch (cde->getCde()) {
-        case '1' :
-            if (cde->getNbArgs() != 2)
-            {
-                cde->setError("Le nombre d'arguments n'est pas correct");
-                return;
-            }
-            if (cde->getArg(1)[0] == '#')
-            {
-                Channel *chan = channelByName(cde->getArg(1).substr(1));
 
-                if (chan == NULL)
-                    cde->setError("Channel inconnu");
-                else
-                    chan->broadcast(cde->getArg(2));
-            }
+    /*------/msg client message-----*/
 
-            else
-                  if ((writeToClt(cde->getArg(2),cde->getArg(1))) == -1)
-                      cde->setError("Le client désigné n'existe pas");
+    case '1' :
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
             return;
-            break;
-        case '2':
+        }
+
+        if ((writeToClt(cde->getArg(2),cde->getArg(1))) == -1)
+            cde->setError("Le client désigné n'existe pas");
+        return;
         break;
+
+    /*-----/msg channel message----*/
+
+    case '2':
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+        Channel *chan;
+        chan = channelByName(cde->getArg(1).substr(1));
+
+        if (chan == NULL)
+            cde->setError("Channel inconnu");
+        else
+            chan->broadcast(cde->getArg(2));
+        return;
+        break;
+
+    /*-----/who motif-----*/
+
+    case '3':
+        if (cde->getNbArgs() != 1)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+        list<Client*> cltSearch = searchClt(cde->getArg(1));
+
+        for (list<Client*>::const_iterator it=cltSearch.begin() ; it!=cltSearch.end() ; ++it)
+        {
+            cout<<(*it)->getName()<<endl;
+            writeToClt((*it)->getName()+"\n",nameClt);
+        }
+        cltSearch.erase(cltSearch.begin(),cltSearch.end());
+        return;
+        break;
+
+
+
 
     }
 
@@ -299,3 +331,20 @@ Commande* Server::whatIsTrame(int sock)
     return Cde;
 }
 
+
+list<Client*> Server::searchClt(const string motifClt) const
+{
+    regex_t expr;
+    list<Client*> cltSearch;
+
+    if ( (regcomp(&expr, motifClt.c_str(),REG_EXTENDED)) == 0)
+    {
+
+            for (list<Client*>::const_iterator it=clients.begin() ; it!=clients.end() ; ++it)
+                if ((regexec(&expr,(*it)->getName().c_str(),0,NULL,0)) == 0)
+                    cltSearch.push_back(*it);
+
+    }
+
+    return cltSearch;
+}

@@ -67,8 +67,10 @@ int main(int argc, char **argv)
 
     if (serv.getSock()+1 > Client::maxSock)
         Client::maxSock = serv.getSock()+1;
-
+    while(1)
     serv.routine() ;
+
+
 
 
     return 0;

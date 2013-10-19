@@ -33,11 +33,9 @@ void init_sockaddr (struct sockaddr_in *name,
 
 int main(int argc, char **argv)
 {
-    string buf;
-    int tbuf, retval;
+    int tbuf;
     int sock ;
     uint port = 1025 ;
-    fd_set readfd;
     struct sockaddr_in sin;
     char IPdefault[10] = "127.0.0.1" ;
     char nameClt[40] = "Anonyme";
@@ -110,62 +108,32 @@ int main(int argc, char **argv)
     write(sock,nameClt,strlen(nameClt));
 
     uint16_t idCde = 99, sizeT;
-    char c='1';
-    char tot[]="test\ntast1\ntzst2\ntrst2\n";
+    char c='3';
+    char tot[]="re*\n";
 
     sizeT = sizeof(tot)+5;
 
-    cout<<sizeT<<idCde<<c<<tot<<endl;
+    if(sizeT < 10)
+    {
+        cout<<"sizeT < 10"<<endl;
+        exit(1);
+    }
 
     char tot2[sizeT];
     sprintf(tot2,"%u%u%c%s",sizeT,idCde,c,tot);
     cout<<tot2<<endl;
     write(sock,tot2,sizeof(tot2)-1);
-    exit(1);
 
-    while(1)
+     sleep(5);
+
+    char buf[tbuf];
+
+    while(read(sock,buf,tbuf) > 0)
     {
 
-        FD_ZERO(&readfd);
-        FD_SET(sock, &readfd);
-        FD_SET(0, &readfd);
+            cout << "Message reçu : " << buf;
 
 
-        retval = select(sock+1, &readfd, NULL, NULL, NULL);
-
-        if (retval == -1)
-        {
-            perror("Select ");
-            close(sock);
-            exit(1);
-        }
-
-        if (FD_ISSET(sock, &readfd))
-        {
-            char buf[tbuf];
-            int nbLu;
-
-            nbLu = read(sock,buf,tbuf);
-            buf[nbLu]='\0';
-
-            cout << "Message reçu : " << buf << endl;
-        }
-
-        if (FD_ISSET(0, &readfd))
-        {
-            /*char buf[tbuf];
-            int nbLu;
-            nbLu = read(0,buf,tbuf);
-            if(buf[strlen(buf)-1]=='\n')
-            {
-                buf[strlen(buf)-1]='\0';
-                ++nbLu;
-            }
-            write(sock,buf,nbLu);*/
-
-
-
-        }
     }
 
 

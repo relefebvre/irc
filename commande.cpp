@@ -4,6 +4,7 @@
 Commande::Commande(uint16_t idCde, char cde)
     :idCde(idCde), cde(cde)
 {
+    nbArgs=0;
 }
 
 void Commande::addArg(const string &arg)
