@@ -28,6 +28,10 @@ const string &Channel::getTopic() const
     return topic;
 }
 
+void Channel::setTopic(const string topic)
+{
+    this->topic = topic;
+}
 
 
 void Channel::broadcast(const string message)

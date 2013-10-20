@@ -213,7 +213,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             cde->setError("Channel inconnu");
+             cde->setError("Le channel n'existe pas");
              return;
         }
 
@@ -237,6 +237,28 @@ void Server::interpreter(Commande *cde, const string nameClt)
             writeToClt((*it)->getChanName()+" "+(*it)->getTopic()+"\n",nameClt);
 
         chanSearch.erase(chanSearch.begin(),chanSearch.end());
+        break;
+
+
+    case '6':
+        if (cde->getNbArgs() < 1 || cde->getNbArgs() > 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        if (cde->getNbArgs() == 1)
+            writeToClt(chan->getTopic(),nameClt);
+        else
+            chan->setTopic(cde->getArg(2));
         break;
 
 

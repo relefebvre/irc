@@ -26,6 +26,7 @@ public:
     const string & getOpName() const;
     const string & getChanName() const;
     const string & getTopic() const;
+    void setTopic(const string topic);
     void addUser(Client *) ;
     void broadcast(const string message) ;
 
