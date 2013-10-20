@@ -239,6 +239,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
         chanSearch.erase(chanSearch.begin(),chanSearch.end());
         break;
 
+    /*-----/topic newTopic----*/
 
     case '6':
         if (cde->getNbArgs() < 1 || cde->getNbArgs() > 2)
@@ -260,6 +261,33 @@ void Server::interpreter(Commande *cde, const string nameClt)
         else
             chan->setTopic(cde->getArg(2));
         break;
+
+
+  /*-----/kick channel motif-----*/
+
+    case '7':
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        int res;
+        if ((res = chan->kickClt(cde->getArg(1))) == 0)
+        {
+            cde->setError("Le nick n'est pas sur ce channel");
+            return;
+        }
+        break;
+
 
 
 

@@ -32,6 +32,8 @@ public:
 
     list<Client*> searchClt() const;
 
+    int kickClt(const string motif);
+
 };
 
 #endif // CHANNEL_H

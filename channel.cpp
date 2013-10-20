@@ -3,6 +3,7 @@
 #include "client.h"
 #include "string.h"
 #include <unistd.h>
+#include <regex.h>
 
 
 
@@ -50,4 +51,25 @@ void Channel::addUser(Client* newClt)
 list<Client*> Channel::searchClt() const
 {
     return users;
+}
+
+
+int Channel::kickClt(const string motif)
+{
+    int nb=0;
+    regex_t expr;
+
+    if ( (regcomp(&expr, motif.c_str(),REG_EXTENDED)) == 0)
+    {
+
+        for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
+        {
+            if ((regexec(&expr,(*i)->getName().c_str(),0,NULL,0)) == 0)
+            {
+                users.erase(i);
+                ++nb;
+            }
+        }
+    }
+    return nb;
 }
