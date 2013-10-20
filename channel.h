@@ -17,6 +17,7 @@ class Channel
 private :
     string chanName ;
     string op ;     //Nom du client ayant les droits d'OP sur le channel
+    string topic;
 
     list<Client *> users ;
 
@@ -24,8 +25,11 @@ public:
     Channel(string chanName, string op);
     const string & getOpName() const;
     const string & getChanName() const;
+    const string & getTopic() const;
     void addUser(Client *) ;
     void broadcast(const string message) ;
+
+    list<Client*> searchClt() const;
 
 };
 

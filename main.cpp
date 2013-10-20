@@ -67,6 +67,15 @@ int main(int argc, char **argv)
 
     if (serv.getSock()+1 > Client::maxSock)
         Client::maxSock = serv.getSock()+1;
+
+    Channel chan("Channel","op");
+    Channel chan1("Channel1","op1");
+    Channel chan2("Channel2","op2");
+
+    serv.addChan(&chan);
+    serv.addChan(&chan1);
+    serv.addChan(&chan2);
+
     while(1)
     serv.routine() ;
 

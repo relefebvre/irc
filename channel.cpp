@@ -9,6 +9,7 @@
 Channel::Channel(string chanName,string op)
     : chanName(chanName), op(op)
 {
+    topic="Default Topic";
 }
 
 const string &Channel::getOpName() const
@@ -20,6 +21,11 @@ const string &Channel::getOpName() const
 const string &Channel::getChanName() const
 {
     return chanName;
+}
+
+const string &Channel::getTopic() const
+{
+    return topic;
 }
 
 
@@ -35,4 +41,9 @@ void Channel::broadcast(const string message)
 void Channel::addUser(Client* newClt)
 {
     users.push_back(newClt);
+}
+
+list<Client*> Channel::searchClt() const
+{
+    return users;
 }

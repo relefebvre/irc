@@ -146,6 +146,10 @@ int Server::writeToClt(const string message, const string nameClt) const
 
 void Server::interpreter(Commande *cde, const string nameClt)
 {
+            Channel *chan;
+              list<Client*> cltSearch;
+              list<Channel*> chanSearch;
+
     switch (cde->getCde()) {
 
     /*------/msg client message-----*/
@@ -159,7 +163,6 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
         if ((writeToClt(cde->getArg(2),cde->getArg(1))) == -1)
             cde->setError("Le client désigné n'existe pas");
-        return;
         break;
 
     /*-----/msg channel message----*/
@@ -170,14 +173,13 @@ void Server::interpreter(Commande *cde, const string nameClt)
             cde->setError("Le nombre d'arguments n'est pas correct");
             return;
         }
-        Channel *chan;
+
         chan = channelByName(cde->getArg(1).substr(1));
 
         if (chan == NULL)
             cde->setError("Channel inconnu");
         else
             chan->broadcast(cde->getArg(2));
-        return;
         break;
 
     /*-----/who motif-----*/
@@ -188,7 +190,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
             cde->setError("Le nombre d'arguments n'est pas correct");
             return;
         }
-        list<Client*> cltSearch = searchClt(cde->getArg(1));
+        cltSearch = searchClt(cde->getArg(1));
 
         for (list<Client*>::const_iterator it=cltSearch.begin() ; it!=cltSearch.end() ; ++it)
         {
@@ -196,7 +198,45 @@ void Server::interpreter(Commande *cde, const string nameClt)
             writeToClt((*it)->getName()+"\n",nameClt);
         }
         cltSearch.erase(cltSearch.begin(),cltSearch.end());
-        return;
+        break;
+
+
+   /*-----/who chanName-----*/
+
+    case '4':
+        if (cde->getNbArgs() != 1)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Channel inconnu");
+             return;
+        }
+
+        cltSearch = chan->searchClt();
+
+        for (list<Client*>::const_iterator it=cltSearch.begin() ; it!=cltSearch.end() ; ++it)
+            writeToClt((*it)->getName()+"\n",nameClt);
+
+        cltSearch.erase(cltSearch.begin(),cltSearch.end());
+        break;
+
+  /*-----/list [motif]----*/
+
+    case '5':
+        if (cde->getNbArgs() == 0)
+            cde->addArg("*");
+
+        chanSearch = searchChan(cde->getArg(1));
+
+        for (list<Channel*>::const_iterator it=chanSearch.begin() ; it!=chanSearch.end() ; ++it)
+            writeToClt((*it)->getChanName()+" "+(*it)->getTopic()+"\n",nameClt);
+
+        chanSearch.erase(chanSearch.begin(),chanSearch.end());
         break;
 
 
@@ -285,18 +325,16 @@ void Server::closeAllSockets()
 
 Channel* Server::channelByName(string chanName)
 {
-    map<string , Channel*>::const_iterator ch(chanMap.find(chanName));
-
-    for(map<string , Channel*>::const_iterator it=chanMap.begin() ; it!=chanMap.end() ; it++)
-        if (it == ch)
-            return it->second;
+    for(list<Channel*>::const_iterator it=channels.begin() ; it!=channels.end() ; it++)
+        if ((*it)->getChanName() == chanName)
+            return (*it);
 
     return NULL;
 }
 
-void Server::addChan(string chanName, Channel *chan)
+void Server::addChan(Channel *chan)
 {
-    chanMap.insert(make_pair(chanName, chan));
+    channels.push_back(chan);
 }
 
 
@@ -348,3 +386,23 @@ list<Client*> Server::searchClt(const string motifClt) const
 
     return cltSearch;
 }
+
+
+list<Channel*> Server::searchChan(const string motifChan) const
+{
+    regex_t expr;
+    list<Channel*> chanSearch;
+
+    if ( (regcomp(&expr, motifChan.c_str(),REG_EXTENDED)) == 0)
+    {
+
+            for(list<Channel*>::const_iterator it=channels.begin() ; it!=channels.end() ; it++)
+                if ((regexec(&expr,(*it)->getChanName().c_str(),0,NULL,0)) == 0)
+                    chanSearch.push_back(*it);
+
+
+    }
+
+    return chanSearch;
+}
+

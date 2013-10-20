@@ -108,8 +108,8 @@ int main(int argc, char **argv)
     write(sock,nameClt,strlen(nameClt));
 
     uint16_t idCde = 99, sizeT;
-    char c='3';
-    char tot[]="re*\n";
+    char c='5';
+    char tot[]="Ch*\n";
 
     sizeT = sizeof(tot)+5;
 
@@ -123,8 +123,6 @@ int main(int argc, char **argv)
     sprintf(tot2,"%u%u%c%s",sizeT,idCde,c,tot);
     cout<<tot2<<endl;
     write(sock,tot2,sizeof(tot2)-1);
-
-     sleep(5);
 
     char buf[tbuf];
 

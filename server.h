@@ -24,7 +24,7 @@ class Server
     int sock;
     struct sockaddr_in sin, csin;
     socklen_t taille;
-    map<string , Channel*> chanMap ;
+    list<Channel*> channels ;
     list<Client*> clients;
     list<Message*> messages;
     fd_set readfd;
@@ -53,11 +53,13 @@ public:
     //Méthode sur les chan
 
     Channel* channelByName(string chanName); //trouve un channel en fonction de son nom
-    void addChan(string chanName, Channel *chan);
+    void addChan(Channel *chan);
 
     Commande* whatIsTrame(int sock);
 
     list<Client*> searchClt(const string motifClt) const;
+
+    list<Channel*> searchChan(const string motifChan) const;
 
 
 };
