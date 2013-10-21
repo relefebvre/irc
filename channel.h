@@ -20,6 +20,7 @@ private :
     string topic;
 
     list<Client *> users ;
+    list<Client*> banned;
 
 public:
     Channel(string chanName, string op);
@@ -33,6 +34,10 @@ public:
     list<Client*> searchClt() const;
 
     int kickClt(const string motif);
+
+    int addBanned(const string motif);
+
+    int setOp(const string nameClt);
 
 };
 

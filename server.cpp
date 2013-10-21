@@ -101,7 +101,7 @@ void Server::routine()
                 Commande *cde;
 
                 cde = whatIsTrame((*i)->getSock());
-                cout<<"Commande : "<<cde->getCde()<<endl;
+                //cout<<"Commande : "<<cde->getCde()<<endl;
 
                 interpreter(cde,(*i)->getName());
             }
@@ -154,7 +154,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
     /*------/msg client message-----*/
 
-    case '1' :
+    case 0x01 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct");
@@ -167,7 +167,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
     /*-----/msg channel message----*/
 
-    case '2':
+    case 0x02 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct");
@@ -184,7 +184,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
     /*-----/who motif-----*/
 
-    case '3':
+    case 0x03 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct");
@@ -203,7 +203,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
    /*-----/who chanName-----*/
 
-    case '4':
+    case 0x04 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct");
@@ -227,7 +227,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
   /*-----/list [motif]----*/
 
-    case '5':
+    case 0x05 :
         if (cde->getNbArgs() == 0)
             cde->addArg("*");
 
@@ -241,7 +241,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
     /*-----/topic newTopic----*/
 
-    case '6':
+    case 0x06 :
         if (cde->getNbArgs() < 1 || cde->getNbArgs() > 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct");
@@ -265,7 +265,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
   /*-----/kick channel motif-----*/
 
-    case '7':
+    case 0x07 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct");
@@ -280,14 +280,70 @@ void Server::interpreter(Commande *cde, const string nameClt)
              return;
         }
 
-        int res;
-        if ((res = chan->kickClt(cde->getArg(1))) == 0)
+        if ((chan->kickClt(cde->getArg(1))) == 0)
         {
             cde->setError("Le nick n'est pas sur ce channel");
             return;
         }
         break;
 
+
+    /*------/ban channel motif-----*/
+
+    case 0x08 :
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        if ((chan->addBanned(cde->getArg(2))) == 0)
+        {
+            cde->setError("Le nick n'est pas sur ce channel");
+            return;
+        }
+        break;
+
+
+   /*-----/op channel nick------*/
+
+    case 0x09 :
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        if ((chan->setOp(cde->getArg(2))) == -1)
+        {
+            cde->setError("Le nick n'est pas sur ce channel");
+            return;
+        }
+        break;
+
+
+
+   /*-----/deop channel nick-----*/
+
+    case 0x20 :
+        cout<<"Test commande OK"<<endl;
+        break;
 
 
 
@@ -391,16 +447,22 @@ void Server::addChan(Channel *chan)
 Commande* Server::whatIsTrame(int sock)
 {
     uint16_t idCde, sizeTrame;
+    //unsigned int cde;
     char cde, buf[4096];
 
     read(sock,&buf,sizeof(sizeTrame));
     sscanf(buf,"%hd",&sizeTrame);
     read(sock,&buf,sizeof(idCde));
     sscanf(buf,"%hd",&idCde);
-    read(sock,&buf,sizeof(cde));
+    read(sock,&buf,sizeof(char));
     sscanf(buf,"%c",&cde);
 
-    int tbuf=sizeTrame-5;
+
+    printf("%hd\n",sizeTrame);
+    printf("%hd\n",idCde);
+    printf("%x\n",cde);
+
+    int tbuf=sizeTrame-3;
 
     read(sock,buf,tbuf);
 

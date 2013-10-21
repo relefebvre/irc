@@ -108,16 +108,18 @@ int main(int argc, char **argv)
     write(sock,nameClt,strlen(nameClt));
 
     uint16_t idCde = 99, sizeT;
-    char c='5';
-    char tot[]="Ch*\n";
+    char c=0x05;
+    char tot[]="Chan*\n";
 
-    sizeT = sizeof(tot)+5;
+    sizeT = sizeof(tot)+3;
 
     if(sizeT < 10)
     {
         cout<<"sizeT < 10"<<endl;
         exit(1);
     }
+
+
 
     char tot2[sizeT];
     sprintf(tot2,"%u%u%c%s",sizeT,idCde,c,tot);
