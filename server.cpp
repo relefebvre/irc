@@ -86,11 +86,14 @@ void Server::routine()
         if (FD_ISSET(getSock(), &readfd))
         {
             char nameClt[40];
+            int size;
             Client *client = new Client(conect());
             clients.push_back(client);
             printf("Client connecté\n");
             assert(write(client->getSock(),&tbuf,sizeof(tbuf)) != -1 );
-            read(client->getSock(),nameClt,sizeof(nameClt));
+            read(client->getSock(),&size,sizeof(size));
+            read(client->getSock(),nameClt,size);
+            nameClt[size]='\0';
             client->setName(nameClt);
 
         }
@@ -101,7 +104,6 @@ void Server::routine()
                 Commande *cde;
 
                 cde = whatIsTrame((*i)->getSock());
-                //cout<<"Commande : "<<cde->getCde()<<endl;
 
                 interpreter(cde,(*i)->getName());
             }
@@ -161,7 +163,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
             return;
         }
 
-        if ((writeToClt(cde->getArg(2),cde->getArg(1))) == -1)
+        if ((writeToClt(cde->getArg(2)+"\n",cde->getArg(1))) == -1)
             cde->setError("Le client désigné n'existe pas");
         break;
 
@@ -342,7 +344,58 @@ void Server::interpreter(Commande *cde, const string nameClt)
    /*-----/deop channel nick-----*/
 
     case 0x20 :
-        cout<<"Test commande OK"<<endl;
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        if ((chan->supprOp(cde->getArg(2))) == -1)
+        {
+            cde->setError("Le nick n'est pas sur ce channel");
+            return;
+        }
+
+        writeToClt("Vous êtes le nouvel opérateur du channel "+chan->getChanName()+"\n",chan->getOpName());
+        break;
+
+
+  /*-----/join channel------*/
+
+    case 0x21 :
+        if (cde->getNbArgs() != 1)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+        cout<<"Chan OK"<<endl;
+
+        if (chan == NULL)
+        {
+            addChan(chan = new Channel(cde->getArg(1), nameClt));
+            chan->addUser((searchClt(nameClt)).front());
+            writeToClt("Vous êtes l'opérateur du channel "+chan->getChanName()+"\n",nameClt);
+            return;
+        }
+
+        if (chan->isBanned(nameClt))
+        {
+            cde->setError("Le client "+nameClt+" est banni du channel "+cde->getArg(1));
+            return;
+        }
+
+        chan->addUser((searchClt(nameClt)).front());
+        writeToClt("Client "+nameClt+" ajouté au channel "+cde->getArg(1)+"\n",nameClt);
         break;
 
 
@@ -454,7 +507,7 @@ Commande* Server::whatIsTrame(int sock)
     sscanf(buf,"%hd",&sizeTrame);
     read(sock,&buf,sizeof(idCde));
     sscanf(buf,"%hd",&idCde);
-    read(sock,&buf,sizeof(char));
+    read(sock,&buf,sizeof(cde));
     sscanf(buf,"%c",&cde);
 
 
@@ -462,9 +515,11 @@ Commande* Server::whatIsTrame(int sock)
     printf("%hd\n",idCde);
     printf("%x\n",cde);
 
-    int tbuf=sizeTrame-3;
+    int tbuf=sizeTrame-sizeof(idCde)-sizeof(cde);
 
     read(sock,buf,tbuf);
+
+    cout<<"Buf : "<<buf;
 
     Commande *Cde = new Commande(idCde,cde);
 

@@ -105,13 +105,19 @@ int main(int argc, char **argv)
 
     printf("Taille du buffer : %d\n",tbuf);
 
+    cout<<"NameClt : "<<nameClt<<endl;
+
+    int size=strlen(nameClt);
+    write(sock,&size,sizeof(size));
     write(sock,nameClt,strlen(nameClt));
 
-    uint16_t idCde = 99, sizeT;
-    char c=0x05;
-    char tot[]="Chan*\n";
 
-    sizeT = sizeof(tot)+3;
+
+    uint16_t idCde = 99, sizeT;
+    char c=0x21;
+    char tot[]="Channel\n";
+
+    sizeT = sizeof(tot)+sizeof(idCde)+sizeof(c);
 
     if(sizeT < 10)
     {
@@ -121,7 +127,7 @@ int main(int argc, char **argv)
 
 
 
-    char tot2[sizeT];
+    char tot2[sizeT+sizeof(sizeT)];
     sprintf(tot2,"%u%u%c%s",sizeT,idCde,c,tot);
     cout<<tot2<<endl;
     write(sock,tot2,sizeof(tot2)-1);

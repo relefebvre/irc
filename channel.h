@@ -39,6 +39,10 @@ public:
 
     int setOp(const string nameClt);
 
+    int supprOp(const string nameClt);
+
+    bool isBanned(const string nameClt) const;
+
 };
 
 #endif // CHANNEL_H

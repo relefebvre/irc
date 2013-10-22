@@ -102,3 +102,24 @@ int Channel::setOp(const string nameClt)
         }
     return -1;
 }
+
+int Channel::supprOp(const string nameClt)
+{
+    for (list<Client*>::const_iterator i=users.begin() ; i != users.end() ; ++i)
+        if ((*i)->getName() == nameClt)
+        {
+            op=(users.back())->getName();
+            return 0;
+        }
+    return -1;
+}
+
+bool Channel::isBanned(const string nameClt) const
+{
+    for (list<Client*>::const_iterator i=banned.begin() ; i != banned.end() ; ++i)
+        if ((*i)->getName() == nameClt)
+        {
+            return true;
+        }
+    return false;
+}
