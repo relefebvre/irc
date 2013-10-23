@@ -86,6 +86,7 @@ int Channel::addBanned(const string motif)
             {
                 banned.push_back(*i);
                 ++nb;
+                kickClt((*i)->getName());
             }
     }
     return nb;
@@ -108,7 +109,7 @@ int Channel::supprOp(const string nameClt)
     for (list<Client*>::const_iterator i=users.begin() ; i != users.end() ; ++i)
         if ((*i)->getName() == nameClt)
         {
-            op=(users.back())->getName();
+            op="";
             return 0;
         }
     return -1;
@@ -123,3 +124,4 @@ bool Channel::isBanned(const string nameClt) const
         }
     return false;
 }
+

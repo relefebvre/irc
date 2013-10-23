@@ -61,6 +61,8 @@ public:
 
     list<Channel*> searchChan(const string motifChan) const;
 
+    int changeNameClt(const string nameClt, const string newName);
+
 
 };
 

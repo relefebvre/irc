@@ -363,8 +363,6 @@ void Server::interpreter(Commande *cde, const string nameClt)
             cde->setError("Le nick n'est pas sur ce channel");
             return;
         }
-
-        writeToClt("Vous êtes le nouvel opérateur du channel "+chan->getChanName()+"\n",chan->getOpName());
         break;
 
 
@@ -378,7 +376,6 @@ void Server::interpreter(Commande *cde, const string nameClt)
         }
 
         chan = channelByName(cde->getArg(1));
-        cout<<"Chan OK"<<endl;
 
         if (chan == NULL)
         {
@@ -398,67 +395,58 @@ void Server::interpreter(Commande *cde, const string nameClt)
         writeToClt("Client "+nameClt+" ajouté au channel "+cde->getArg(1)+"\n",nameClt);
         break;
 
+    /*------/nick newNick-----*/
 
+    case 0x22 :
+        if (cde->getNbArgs() != 1)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        if (cde->getArg(1) == "")
+        {
+            cde->setError("Nick invalide");
+            return;
+        }
+
+        if (changeNameClt(nameClt,cde->getArg(1)) == -1)
+        {
+            cde->setError("Nom \""+cde->getArg(1)+"\" déja pris");
+            return;
+        }
+        break;
+
+
+   /*-----/leave channel----*/
+
+    case 0x23 :
+        if (cde->getNbArgs() != 1)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        if ((chan->kickClt(nameClt)) == 0)
+        {
+            cde->setError("Client inconnu");
+            return;
+        }
+        break;
+
+
+   /*-----/unban channel motif-----*/
 
 
     }
-
-   /* if (buf[0] == '/')
-    {
-        char cmd[10];
-
-        sscanf(buf,"%*c%s%*c%[^\n]",cmd,buf);
-
-        if (strcmp("join",cmd)==0)
-        {
-            string name(buf);
-            Channel* chan = channelByName(name);
-            cout << "Création du channel : "<<name<<endl;
-            if(chan == NULL)
-            {
-
-                chan = new Channel(name, (*i)->getName());
-                addChan(name,chan);
-                cout << "Ajout du channel : "<<name<< " à la map."<<endl;
-                cout << "Oppérateur du channel : "<<chan->getOpName()<<endl;
-                string message = "Vous êtes l'oppérateur du channel " + chan->getChanName();
-                write((*i)->getSock(),message.c_str(),strlen(message.c_str()));
-            }
-            else
-            {
-                cout << "Channel déjà existant"<<endl;
-            }
-
-        }
-
-        if (strcmp("mess",cmd) == 0)
-        {
-            char nameClt[40];
-            sscanf(buf,"%s%*c%[^\n]",nameClt,buf);
-            Message *mess=new Message(buf,(*i)->getName());
-            if(writeToClt(mess,nameClt) == -1)
-            {
-                string SnameClt(nameClt);
-                string message = "Le client "+SnameClt+" n'est pas connecté";
-                write((*i)->getSock(),message.c_str(),strlen(message.c_str()));
-            }
-            else
-                cout<<"Message envoyé"<<endl;
-        }
-
-        cout << "Commande : "<<cmd << " reste : "<<buf <<endl;
-    }
-    else
-    {
-
-        if(buf[strlen(buf)-1]=='\n')
-            buf[strlen(buf)-1]='\0';
-
-        cout << "Message lu : "<< buf << endl;
-        Message *mess=new Message(buf,(*i)->getName());
-        messages.push_back(mess);
-        //broadcast(mess,clients);
-    }*/
     return;
 }
 
@@ -573,3 +561,18 @@ list<Channel*> Server::searchChan(const string motifChan) const
     return chanSearch;
 }
 
+
+int Server::changeNameClt(const string nameClt ,const string newName)
+{
+    for (list<Client*>::const_iterator it=clients.begin() ; it!=clients.end() ; ++it)
+    {
+        if ((*it)->getName() == newName)
+            return -1;
+        if ((*it)->getName() == nameClt)
+        {
+            (*it)->setName(newName);
+            return 0;
+        }
+    }
+    return -1;
+}
