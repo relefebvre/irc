@@ -33,7 +33,7 @@ public:
 
     list<Client*> searchClt() const;
 
-    int kickClt(const string motif);
+    list<Client *> kickClt(const string motif);
 
     int addBanned(const string motif);
     int supprBanned(const string motif);

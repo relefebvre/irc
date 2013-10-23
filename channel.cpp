@@ -54,9 +54,9 @@ list<Client*> Channel::searchClt() const
 }
 
 
-int Channel::kickClt(const string motif)
+list<Client*> Channel::kickClt(const string motif)
 {
-    int nb=0;
+    list<Client*> clt;
     regex_t expr;
 
     if ( (regcomp(&expr, motif.c_str(),REG_EXTENDED)) == 0)
@@ -67,11 +67,11 @@ int Channel::kickClt(const string motif)
             if ((regexec(&expr,(*i)->getName().c_str(),0,NULL,0)) == 0)
             {
                 users.erase(i);
-                ++nb;
+                clt.push_back(*i);
             }
         }
     }
-    return nb;
+    return clt;
 }
 
 int Channel::addBanned(const string motif)

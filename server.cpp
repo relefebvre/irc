@@ -101,11 +101,14 @@ void Server::routine()
         for(list<Client*>::iterator i=clients.begin(); i != clients.end() ; ++i)
             if (FD_ISSET((*i)->getSock(), &readfd))
             {
-                Commande *cde;
+                Commande *cde,*cde1;
 
                 cde = whatIsTrame((*i)->getSock());
 
-                interpreter(cde,(*i)->getName());
+                if ((cde1 = receive(cde,(*i)->getName())) == NULL)
+                    writeToClt(cde->getError(),(*i)->getName());
+                 else
+                    send(cde1,(*i)->getName());
             }
 
 }
@@ -146,51 +149,58 @@ int Server::writeToClt(const string message, const string nameClt) const
 }
 
 
-void Server::interpreter(Commande *cde, const string nameClt)
+Commande *Server::receive(Commande *cde, const string nameClt)
 {
             Channel *chan;
               list<Client*> cltSearch;
               list<Channel*> chanSearch;
+              Commande *newCde;
 
     switch (cde->getCde()) {
 
     /*------/msg client message-----*/
 
-    case 0x01 :
+    case (char)1 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",1);
+            return NULL;
         }
 
-        if ((writeToClt(cde->getArg(2)+"\n",cde->getArg(1))) == -1)
-            cde->setError("Le client désigné n'existe pas");
+        newCde = new Commande(cde->getIdCde(),(char)129);
+        newCde->addArg(cde->getArg(1));
+        newCde->addArg(cde->getArg(2));
         break;
 
     /*-----/msg channel message----*/
 
-    case 0x02 :
+    case (char)2 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",2);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1).substr(1));
 
         if (chan == NULL)
-            cde->setError("Channel inconnu");
+            cde->setError("Channel inconnu",3);
         else
-            chan->broadcast(cde->getArg(2));
+        {
+            newCde = new Commande(cde->getIdCde(),(char)128);
+            newCde->addArg(cde->getArg(1));
+            newCde->addArg(nameClt);
+            newCde->addArg(cde->getArg(2));
+        }
         break;
 
     /*-----/who motif-----*/
 
-    case 0x03 :
+    case (char)3 :
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",4);
+            return NULL;
         }
         cltSearch = searchClt(cde->getArg(1));
 
@@ -205,18 +215,18 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
    /*-----/who chanName-----*/
 
-    case 0x04 :
+    case (char)4 :
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",5);
+            return NULL;
         }
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",6);
+             return NULL;
         }
 
         cltSearch = chan->searchClt();
@@ -229,7 +239,7 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
   /*-----/list [motif]----*/
 
-    case 0x05 :
+    case (char)5 :
         if (cde->getNbArgs() == 0)
             cde->addArg("*");
 
@@ -243,99 +253,119 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
     /*-----/topic newTopic----*/
 
-    case 0x06 :
-        if (cde->getNbArgs() < 1 || cde->getNbArgs() > 2)
+    case (char)6 :
+        if (cde->getNbArgs() > 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",7);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",8);
+             return NULL;
         }
 
-        if (cde->getNbArgs() == 1)
+        if (cde->getNbArgs() == 0)
             writeToClt(chan->getTopic(),nameClt);
         else
+        {
+            newCde = new Commande(cde->getIdCde(),(char)131);
+            newCde->addArg(chan->getChanName());
+            newCde->addArg(cde->getArg(2));
             chan->setTopic(cde->getArg(2));
+        }
         break;
 
 
   /*-----/kick channel motif-----*/
 
-    case 0x07 :
+    case (char)7 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",9);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",10);
+             return NULL;
         }
 
-        if ((chan->kickClt(cde->getArg(1))) == 0)
+        cltSearch = chan->kickClt(cde->getArg(1));
+
+        if (cltSearch.empty())
         {
-            cde->setError("Le nick n'est pas sur ce channel");
-            return;
+            cde->setError("Le nick n'est pas sur ce channel",11);
+            return NULL;
+        }
+        else
+        {
+            newCde = new Commande(cde->getIdCde(),(char)134);
+            for (list<Client*>::const_iterator it=cltSearch.begin(); it!=cltSearch.end(); ++it)
+                newCde->addArg((*it)->getName());
+            newCde->addArg(nameClt);
         }
         break;
 
 
     /*------/ban channel motif-----*/
 
-    case 0x08 :
+    case (char)8 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",12);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",13);
+             return NULL;
         }
 
         if ((chan->addBanned(cde->getArg(2))) == 0)
         {
-            cde->setError("Le nick n'est pas sur ce channel");
-            return;
+            cde->setError("Le nick n'est pas sur ce channel",14);
+            return NULL;
+        }
+        else
+        {
+            newCde = new Commande(cde->getIdCde(),(char)135);
+            newCde->addArg(cde->getArg(1));
+            newCde->addArg("+"+cde->getArg(2));
         }
         break;
 
 
    /*-----/op channel nick------*/
 
-    case 0x09 :
+    case (char)9 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",15);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",16);
+             return NULL;
         }
 
         if ((chan->setOp(cde->getArg(2))) == -1)
         {
-            cde->setError("Le nick n'est pas sur ce channel");
-            return;
+            cde->setError("Le nick n'est pas sur ce channel",17);
+            return NULL;
         }
         break;
 
@@ -343,36 +373,36 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
    /*-----/deop channel nick-----*/
 
-    case 0x20 :
+    case (char)20 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",18);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",19);
+             return NULL;
         }
 
         if ((chan->supprOp(cde->getArg(2))) == -1)
         {
-            cde->setError("Le nick n'est pas sur ce channel");
-            return;
+            cde->setError("Le nick n'est pas sur ce channel",20);
+            return NULL;
         }
         break;
 
 
   /*-----/join channel------*/
 
-    case 0x21 :
+    case (char)21 :
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",21);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
@@ -382,107 +412,129 @@ void Server::interpreter(Commande *cde, const string nameClt)
             addChan(chan = new Channel(cde->getArg(1), nameClt));
             chan->addUser((searchClt(nameClt)).front());
             writeToClt("Vous êtes l'opérateur du channel "+chan->getChanName()+"\n",nameClt);
-            return;
+            /*!!!!!!!!!return!!!!!!!!!*/
         }
 
         if (chan->isBanned(nameClt))
         {
-            cde->setError("Le client "+nameClt+" est banni du channel "+cde->getArg(1));
-            return;
+            cde->setError("Le client "+nameClt+" est banni du channel "+cde->getArg(1),22);
+            return NULL;
         }
 
         chan->addUser((searchClt(nameClt)).front());
-        writeToClt("Client "+nameClt+" ajouté au channel "+cde->getArg(1)+"\n",nameClt);
+
+        newCde = new Commande(cde->getIdCde(),(char)137);
+        newCde->addArg(cde->getArg(1));
+        newCde->addArg(nameClt);
         break;
 
     /*------/nick newNick-----*/
 
-    case 0x22 :
+    case (char)22 :
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",23);
+            return NULL;
         }
 
         if (cde->getArg(1) == "")
         {
-            cde->setError("Nick invalide");
-            return;
+            cde->setError("Nick invalide",24);
+            return NULL;
         }
 
         if (changeNameClt(nameClt,cde->getArg(1)) == -1)
         {
-            cde->setError("Nom \""+cde->getArg(1)+"\" déja pris");
-            return;
+            cde->setError("Nom \""+cde->getArg(1)+"\" déja pris",25);
+            return NULL;
+        }
+        else
+        {
+            newCde = new Commande(cde->getIdCde(),(char)132);
+            newCde->addArg(nameClt);
+            newCde->addArg(cde->getArg(1));
         }
         break;
 
 
    /*-----/leave channel----*/
 
-    case 0x23 :
+    case (char)23 :
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",26);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",27);
+             return NULL;
         }
 
-        if ((chan->kickClt(nameClt)) == 0)
+        cltSearch = chan->kickClt(nameClt);
+        if (cltSearch.empty())
         {
-            cde->setError("Client inconnu");
-            return;
+            cde->setError("Client inconnu",28);
+            return NULL;
+        }
+        else
+        {
+            newCde = new Commande(cde->getIdCde(),(char)133);
+            newCde->addArg(cde->getArg(1));
+            newCde->addArg(nameClt);
         }
         break;
 
 
    /*-----/unban channel motif-----*/
 
-    case 0x24 :
+    case (char)24 :
         if (cde->getNbArgs() != 2)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",29);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",30);
+             return NULL;
         }
 
         if ((chan->supprBanned(cde->getArg(2))) == 0)
         {
-            cde->setError("Le nick n'est pas sur banni de ce channel");
-            return;
+            cde->setError("Le nick n'est pas sur banni de ce channel",31);
+            return NULL;
+        }
+        else
+        {
+            newCde = new Commande(cde->getIdCde(),(char)135);
+            newCde->addArg(cde->getArg(1));
+            newCde->addArg("-"+cde->getArg(2));
         }
         break;
 
 
     /*-----/banlist channel----*/
 
-    case 0x25 :
+    case (char)25 :
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("Le nombre d'arguments n'est pas correct");
-            return;
+            cde->setError("Le nombre d'arguments n'est pas correct",32);
+            return NULL;
         }
 
         chan = channelByName(cde->getArg(1));
 
         if(chan == NULL)
         {
-             cde->setError("Le channel n'existe pas");
-             return;
+             cde->setError("Le channel n'existe pas",33);
+             return NULL;
         }
 
         cltSearch = chan->listBan();
@@ -494,11 +546,64 @@ void Server::interpreter(Commande *cde, const string nameClt)
         break;
 
     }
-    return;
+    return newCde;
 }
 
 
+void Server::send(Commande *cde,const string nameClt)
+{
+    Channel* chan;
+    int i;
 
+    switch (cde->getCde()) {
+
+    case (char)128 :
+        chan = channelByName(cde->getArg(1));
+        chan->broadcast(cde->getArg(2)+" : "+cde->getArg(3));
+        break;
+
+    case (char)129 :
+        writeToClt(cde->getArg(1)+" : "+cde->getArg(2),nameClt);
+        break;
+
+    case (char)130 :
+
+        break;
+
+    case (char)131 :
+        chan = channelByName(cde->getArg(1));
+        chan->broadcast("Nouveau Topic : "+cde->getArg(2));
+        break;
+
+    case (char)132 :
+        writeToClt("Le client "+cde->getArg(1)+" devient "+cde->getArg(2),nameClt);
+        break;
+
+    case (char)133 :
+        chan = channelByName(cde->getArg(1));
+        chan->broadcast("L'utilisateur : "+cde->getArg(2)+" a quitté le channel");
+        break;
+
+    case (char)134 :
+        chan = channelByName(cde->getArg(1));
+        for (i=2 ; i<cde->getNbArgs() ; ++i)
+            chan->broadcast("L'utilisateur : "+cde->getArg(i)+" a été kické du channel");
+        break;
+
+    case (char)135 :
+        chan = channelByName(cde->getArg(1));
+        chan->broadcast("Ban : "+cde->getArg(2));
+        break;
+
+    case (char)136 :
+        break;
+
+    case (char)137 :
+        chan = channelByName(cde->getArg(1));
+        chan->broadcast("L'utilisateur : "+cde->getArg(2)+" a rejoint le channel");
+        break;
+    }
+}
 
 
 
@@ -548,7 +653,7 @@ Commande* Server::whatIsTrame(int sock)
 
     printf("%hd\n",sizeTrame);
     printf("%hd\n",idCde);
-    printf("%x\n",cde);
+    printf("%c\n",cde);
 
     int tbuf=sizeTrame-sizeof(idCde)-sizeof(cde);
 

@@ -114,8 +114,8 @@ int main(int argc, char **argv)
 
 
     uint16_t idCde = 99, sizeT;
-    char c=0x21;
-    char tot[]="Channel\n";
+    char c=(char)1;
+    char tot[]="toto\ntest message pour toto\n";
 
     sizeT = sizeof(tot)+sizeof(idCde)+sizeof(c);
 

@@ -25,11 +25,14 @@ public:
 
     const char & getCde() const;
 
+    const uint16_t & getIdCde() const;
+
     const int & getNbArgs() const;
 
     string getArg(const int num) const;
 
-    void setError(const string err);
+    void setError(const string err,const int errNum);
+    const string & getError() const;
 };
 
 #endif // COMMANDE_H

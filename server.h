@@ -48,7 +48,8 @@ public:
     void routine();
     void closeAll();
 
-    void interpreter(Commande *cde, const string nameClt) ;
+    Commande* receive(Commande *cde, const string nameClt) ;
+    void send(Commande *cde, const string nameClt);
 
     //Méthode sur les chan
 

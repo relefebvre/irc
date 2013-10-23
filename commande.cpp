@@ -1,4 +1,7 @@
 #include <iostream>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 #include "commande.h"
 
 Commande::Commande(uint16_t idCde, char cde)
@@ -24,6 +27,11 @@ const char &Commande::getCde() const
     return cde;
 }
 
+ const uint16_t & Commande::getIdCde() const
+ {
+     return idCde;
+ }
+
 const int &Commande::getNbArgs() const
 {
     return nbArgs;
@@ -43,7 +51,17 @@ string Commande::getArg(const int num) const
     return "ERROR";
 }
 
-void Commande::setError(const string err)
+void Commande::setError(const string err, const int errNum)
 {
-    error = err;
+    char erreur[4096];
+    uint16_t size;
+    sprintf(erreur,"%u%c%s",idCde,(char)errNum,err.c_str());
+    size=strlen(erreur);
+    sprintf(erreur,"%u%s",size,erreur);
+    error=erreur;
+}
+
+const string &Commande::getError() const
+{
+    return error;
 }
