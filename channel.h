@@ -44,6 +44,8 @@ public:
 
     bool isBanned(const string nameClt) const;
 
+    list<Client*> listBan() const;
+
 };
 
 #endif // CHANNEL_H

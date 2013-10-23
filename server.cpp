@@ -468,6 +468,31 @@ void Server::interpreter(Commande *cde, const string nameClt)
         break;
 
 
+    /*-----/banlist channel----*/
+
+    case 0x25 :
+        if (cde->getNbArgs() != 1)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        cltSearch = chan->listBan();
+
+        for (list<Client*>::const_iterator it=cltSearch.begin() ; it!=cltSearch.end() ; ++it)
+            writeToClt((*it)->getName()+"\n",nameClt);
+
+        cltSearch.erase(cltSearch.begin(),cltSearch.end());
+        break;
+
     }
     return;
 }

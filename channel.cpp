@@ -143,3 +143,10 @@ bool Channel::isBanned(const string nameClt) const
     return false;
 }
 
+
+list<Client*> Channel::listBan() const
+{
+    return banned;
+}
+
+
