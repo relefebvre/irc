@@ -445,6 +445,28 @@ void Server::interpreter(Commande *cde, const string nameClt)
 
    /*-----/unban channel motif-----*/
 
+    case 0x24 :
+        if (cde->getNbArgs() != 2)
+        {
+            cde->setError("Le nombre d'arguments n'est pas correct");
+            return;
+        }
+
+        chan = channelByName(cde->getArg(1));
+
+        if(chan == NULL)
+        {
+             cde->setError("Le channel n'existe pas");
+             return;
+        }
+
+        if ((chan->supprBanned(cde->getArg(2))) == 0)
+        {
+            cde->setError("Le nick n'est pas sur banni de ce channel");
+            return;
+        }
+        break;
+
 
     }
     return;

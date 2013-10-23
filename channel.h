@@ -36,6 +36,7 @@ public:
     int kickClt(const string motif);
 
     int addBanned(const string motif);
+    int supprBanned(const string motif);
 
     int setOp(const string nameClt);
 

@@ -93,6 +93,24 @@ int Channel::addBanned(const string motif)
 }
 
 
+int Channel::supprBanned(const string motif)
+{
+    int nb=0;
+    regex_t expr;
+
+    if ( (regcomp(&expr, motif.c_str(),REG_EXTENDED)) == 0)
+    {
+        for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
+            if ((regexec(&expr,(*i)->getName().c_str(),0,NULL,0)) == 0)
+            {
+                banned.erase(i);
+                ++nb;
+            }
+    }
+    return nb;
+}
+
+
 int Channel::setOp(const string nameClt)
 {
     for (list<Client*>::const_iterator i=users.begin() ; i != users.end() ; ++i)
