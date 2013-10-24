@@ -22,7 +22,7 @@ void Commande::affichArgs()
         cout<<*it<<endl;
 }
 
-const char &Commande::getCde() const
+const unsigned char &Commande::getCde() const
 {
     return cde;
 }
@@ -64,4 +64,19 @@ void Commande::setError(const string err, const int errNum)
 const string &Commande::getError() const
 {
     return error;
+}
+
+
+const string Commande::createMsg() const
+{
+    string mess;
+    uint16_t size;
+    char protocol[5];
+
+    for (int i=1 ; i<=nbArgs ; ++i)
+        mess += getArg(i)+"\n";
+    size = mess.length()+3;
+    sprintf(protocol,"%d%d%x",size,idCde,cde);
+    mess = protocol+mess;
+    return mess;
 }

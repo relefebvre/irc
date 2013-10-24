@@ -13,6 +13,7 @@ Client::Client(int sock)
 {
     if (sock+1 > Client::maxSock)
         Client::maxSock = sock+1;
+    name="Anonyme";
 }
 
 const int &Client::getSock() const

@@ -11,7 +11,7 @@ using namespace std;
 class Commande
 {
     uint16_t idCde;
-    char cde;
+    unsigned char cde;
     list<string> args;
     int nbArgs;
     string error;
@@ -23,7 +23,7 @@ public:
 
     void affichArgs();
 
-    const char & getCde() const;
+    const unsigned char &getCde() const;
 
     const uint16_t & getIdCde() const;
 
@@ -33,6 +33,8 @@ public:
 
     void setError(const string err,const int errNum);
     const string & getError() const;
+
+    const string createMsg() const;
 };
 
 #endif // COMMANDE_H

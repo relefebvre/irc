@@ -85,17 +85,10 @@ void Server::routine()
 
         if (FD_ISSET(getSock(), &readfd))
         {
-            char nameClt[40];
-            int size;
             Client *client = new Client(conect());
             clients.push_back(client);
             printf("Client connecté\n");
             assert(write(client->getSock(),&tbuf,sizeof(tbuf)) != -1 );
-            read(client->getSock(),&size,sizeof(size));
-            read(client->getSock(),nameClt,size);
-            nameClt[size]='\0';
-            client->setName(nameClt);
-
         }
 
         for(list<Client*>::iterator i=clients.begin(); i != clients.end() ; ++i)
@@ -160,21 +153,20 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     /*------/msg client message-----*/
 
-    case (char)1 :
+    case 1 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",1);
             return NULL;
         }
-
-        newCde = new Commande(cde->getIdCde(),(char)129);
+        newCde = new Commande(cde->getIdCde(),(unsigned char)129);
         newCde->addArg(cde->getArg(1));
         newCde->addArg(cde->getArg(2));
         break;
 
     /*-----/msg channel message----*/
 
-    case (char)2 :
+    case 2 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",2);
@@ -196,7 +188,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     /*-----/who motif-----*/
 
-    case (char)3 :
+    case 3 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",4);
@@ -215,7 +207,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
    /*-----/who chanName-----*/
 
-    case (char)4 :
+    case 4 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",5);
@@ -239,7 +231,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
   /*-----/list [motif]----*/
 
-    case (char)5 :
+    case 5 :
         if (cde->getNbArgs() == 0)
             cde->addArg("*");
 
@@ -253,7 +245,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     /*-----/topic newTopic----*/
 
-    case (char)6 :
+    case 6 :
         if (cde->getNbArgs() > 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",7);
@@ -282,7 +274,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
   /*-----/kick channel motif-----*/
 
-    case (char)7 :
+    case 7 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",9);
@@ -316,7 +308,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     /*------/ban channel motif-----*/
 
-    case (char)8 :
+    case 8 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",12);
@@ -347,7 +339,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
    /*-----/op channel nick------*/
 
-    case (char)9 :
+    case 9 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",15);
@@ -373,7 +365,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
    /*-----/deop channel nick-----*/
 
-    case (char)20 :
+    case 20 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",18);
@@ -398,7 +390,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
   /*-----/join channel------*/
 
-    case (char)21 :
+    case 21 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",21);
@@ -430,7 +422,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     /*------/nick newNick-----*/
 
-    case (char)22 :
+    case 22 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",23);
@@ -459,7 +451,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
    /*-----/leave channel----*/
 
-    case (char)23 :
+    case 23 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",26);
@@ -491,7 +483,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
    /*-----/unban channel motif-----*/
 
-    case (char)24 :
+    case 24 :
         if (cde->getNbArgs() != 2)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",29);
@@ -522,7 +514,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     /*-----/banlist channel----*/
 
-    case (char)25 :
+    case 25 :
         if (cde->getNbArgs() != 1)
         {
             cde->setError("Le nombre d'arguments n'est pas correct",32);
@@ -557,48 +549,50 @@ void Server::send(Commande *cde,const string nameClt)
 
     switch (cde->getCde()) {
 
-    case (char)128 :
+    case 128 :
+        cout<<"Commande 128"<<endl;
         chan = channelByName(cde->getArg(1));
         chan->broadcast(cde->getArg(2)+" : "+cde->getArg(3));
         break;
 
-    case (char)129 :
-        writeToClt(cde->getArg(1)+" : "+cde->getArg(2),nameClt);
+    case 129 :
+        cout<<"Message cout : "<<cde->createMsg()<<endl;
+        writeToClt(cde->createMsg(),nameClt);
         break;
 
-    case (char)130 :
+    case 130 :
 
         break;
 
-    case (char)131 :
+    case 131 :
         chan = channelByName(cde->getArg(1));
         chan->broadcast("Nouveau Topic : "+cde->getArg(2));
         break;
 
-    case (char)132 :
+    case 132 :
         writeToClt("Le client "+cde->getArg(1)+" devient "+cde->getArg(2),nameClt);
         break;
 
-    case (char)133 :
+    case 133 :
         chan = channelByName(cde->getArg(1));
         chan->broadcast("L'utilisateur : "+cde->getArg(2)+" a quitté le channel");
         break;
 
-    case (char)134 :
+    case 134 :
         chan = channelByName(cde->getArg(1));
         for (i=2 ; i<cde->getNbArgs() ; ++i)
             chan->broadcast("L'utilisateur : "+cde->getArg(i)+" a été kické du channel");
         break;
 
-    case (char)135 :
+    case 135 :
         chan = channelByName(cde->getArg(1));
         chan->broadcast("Ban : "+cde->getArg(2));
         break;
 
-    case (char)136 :
+    case 136 :
         break;
 
-    case (char)137 :
+    case 137 :
         chan = channelByName(cde->getArg(1));
         chan->broadcast("L'utilisateur : "+cde->getArg(2)+" a rejoint le channel");
         break;
@@ -643,17 +637,12 @@ Commande* Server::whatIsTrame(int sock)
     //unsigned int cde;
     char cde, buf[4096];
 
-    read(sock,&buf,sizeof(sizeTrame));
-    sscanf(buf,"%hd",&sizeTrame);
-    read(sock,&buf,sizeof(idCde));
-    sscanf(buf,"%hd",&idCde);
-    read(sock,&buf,sizeof(cde));
-    sscanf(buf,"%c",&cde);
-
-
-    printf("%hd\n",sizeTrame);
-    printf("%hd\n",idCde);
-    printf("%c\n",cde);
+    read(sock,&sizeTrame,sizeof(sizeTrame));
+    read(sock,&idCde,sizeof(idCde));
+    read(sock,&cde,sizeof(cde));
+    cout<<"Size trame : "<<sizeTrame<<endl;
+    cout<<"idCde : "<<idCde<<endl;
+    printf("cde : %x\n",cde);
 
     int tbuf=sizeTrame-sizeof(idCde)-sizeof(cde);
 
