@@ -606,7 +606,7 @@ void Server::send(Commande *cde,const string nameClt)
         break;
 
     case 129 :
-        writeToClt(trame,nameClt);
+        writeToClt(trame,cde->getArg(1));
         break;
 
     case 130 :
