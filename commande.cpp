@@ -8,6 +8,7 @@ Commande::Commande(uint16_t idCde, char cde)
     :idCde(idCde), cde(cde)
 {
     nbArgs=0;
+    errNum=0;
 }
 
 void Commande::addArg(const string &arg)
@@ -53,17 +54,17 @@ string Commande::getArg(const int num) const
 
 void Commande::setError(const string err, const int errNum)
 {
-    char erreur[4096];
-    uint16_t size;
-    sprintf(erreur,"%u%c%s",idCde,(char)errNum,err.c_str());
-    size=strlen(erreur);
-    sprintf(erreur,"%u%s",size,erreur);
-    error=erreur;
+    this->errNum = errNum;
+
+    if (err == "");
+        //Erreur par défeut //Map<message erreur, code erreur>////
+    else
+        this->err = err;
 }
 
 const string &Commande::getError() const
 {
-    return error;
+    return err;
 }
 
 

@@ -14,7 +14,8 @@ class Commande
     unsigned char cde;
     list<string> args;
     int nbArgs;
-    string error;
+    int errNum;
+    string err;
 
 public:
     Commande(uint16_t idCde, char cde);
