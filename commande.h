@@ -13,7 +13,6 @@ class Commande
     uint16_t idCde;
     unsigned char cde;
     list<string> args;
-    int nbArgs;
     int errNum;
     string err;
 
@@ -28,7 +27,7 @@ public:
 
     const uint16_t & getIdCde() const;
 
-    const int & getNbArgs() const;
+    int getNbArgs() const { return args.size(); }
 
     string getArg(const int num) const;
 

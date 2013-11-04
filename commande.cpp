@@ -3,18 +3,17 @@
 #include <stdint.h>
 #include <string.h>
 #include "commande.h"
+#include <cassert>
 
 Commande::Commande(uint16_t idCde, char cde)
     :idCde(idCde), cde(cde)
 {
-    nbArgs=0;
     errNum=0;
 }
 
 void Commande::addArg(const string &arg)
 {
     args.push_back(arg);
-    ++nbArgs;
 }
 
 void Commande::affichArgs()
@@ -33,10 +32,6 @@ const unsigned char &Commande::getCde() const
      return idCde;
  }
 
-const int &Commande::getNbArgs() const
-{
-    return nbArgs;
-}
 
 string Commande::getArg(const int num) const
 {
@@ -48,8 +43,7 @@ string Commande::getArg(const int num) const
             return (*it);
         ++i;
        }
-
-    return "ERROR";
+    assert(false);
 }
 
 void Commande::setError(const string err, const int errNum)
@@ -71,14 +65,19 @@ const string &Commande::getError() const
 const string Commande::createMsg() const
 {
     string mess;
+    char trame[4096]="0";
     uint16_t size;
-    char protocol[5];
-
-    for (int i=1 ; i<=nbArgs ; ++i)
-        mess += getArg(i)+"\n";
+    for(list<string>::const_iterator it=args.begin(); it != args.end() ; ++it)
+        mess += (*it)+"\n";
     size = mess.length()+3;
     cout<<"taille : "<<size<<endl;
-    sprintf(protocol,"%u%d%x",size,idCde,errNum);
-    mess = protocol+mess;
+#warning Ici sans doute erreur de generation de la trame
+    //sprintf(protocol,"%u%d%x",size,idCde,errNum);
+    memcpy(trame,&size,sizeof(size));
+    memcpy(trame+sizeof(size),&idCde,sizeof(idCde));
+    memcpy(trame+sizeof(size)+sizeof(idCde),&cde,sizeof(cde));
+    memcpy(trame+sizeof(size)+sizeof(idCde)+sizeof(cde),mess.c_str(),strlen(mess.c_str()));
+    printf("Message : %s",trame);
+    mess=trame;
     return mess;
 }
