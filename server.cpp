@@ -594,7 +594,7 @@ void Server::send(Commande *cde,const string nameClt)
         break;
 
     case 129 :
-        writeToClt(cde->createMsg(),nameClt);
+        writeToClt(cde->createMsg(),cde->getArg(1));
         break;
 
     case 130 :

@@ -43,7 +43,7 @@ string Commande::getArg(const int num) const
             return (*it);
         ++i;
        }
-    assert(false);
+    assert(true);
 }
 
 void Commande::setError(const string err, const int errNum)
@@ -75,6 +75,7 @@ Message* Commande::createMsg() const
     memcpy(trame,&size,sizeof(size));
     memcpy(trame+sizeof(size),&idCde,sizeof(idCde));
     memcpy(trame+sizeof(size)+sizeof(idCde),&cde,sizeof(cde));
-    memcpy(trame+sizeof(size)+sizeof(idCde)+sizeof(cde),mess.c_str(),mess.length()+1);
+    memcpy(trame+sizeof(size)+sizeof(idCde)+sizeof(cde),mess.c_str(),mess.length());
+
     return new Message(trame,size+sizeof(size));
 }
