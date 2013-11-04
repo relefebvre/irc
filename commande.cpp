@@ -43,7 +43,7 @@ string Commande::getArg(const int num) const
             return (*it);
         ++i;
        }
-    assert(false);
+    assert(true);
 }
 
 void Commande::setError(const string err, const int errNum)
