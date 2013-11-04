@@ -90,6 +90,7 @@ class IrcThing
     buf=input.read(2)
     return nil unless buf
     size=buf.unpack('v')[0]
+puts "===> #{size}"
     buf=input.read(size)
     return nil unless buf
     return decodeFrame(buf)

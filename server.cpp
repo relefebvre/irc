@@ -71,9 +71,6 @@ void Server::closeSockServ()
 void Server::routine()
 {
 
-        char buf[4096];
-        unsigned tbuf = sizeof(buf);
-
         addAllSockets(&readfd);
 
         if ( select(Client::maxSock,&readfd, NULL, NULL, NULL) == -1) {
@@ -88,7 +85,6 @@ void Server::routine()
             Client *client = new Client(conect());
             clients.push_back(client);
             printf("Client connecté\n");
-            assert(write(client->getSock(),&tbuf,sizeof(tbuf)) != -1 );
         }
 
         for(list<Client*>::iterator i=clients.begin(); i != clients.end() ; ++i)
@@ -98,9 +94,9 @@ void Server::routine()
 
                 cde = whatIsTrame((*i)->getSock());
 
-                if ((cde1 = receive(cde,(*i)->getName())) == NULL)
-                    writeToClt(cde->getError(),(*i)->getName());
-                 else
+               cde1 = receive(cde,(*i)->getName());
+                  //  writeToClt(cde->getError(),(*i)->getName());
+                // else
                     send(cde1,(*i)->getName());
             }
 
@@ -154,21 +150,24 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     /*------/msg client message-----*/
 
     case 1 :
-        newCde = new Commande(cde->getIdCde(),(unsigned char)129);
+        newCde = new Commande(cde->getIdCde(),(char)129);
 
         if (cde->getNbArgs() != 2)
         {
+            cout<<"Erreur args"<<endl;
             newCde->setError("",253);
             break;
         }
 
-        cltSearch = searchClt(cde->getArg(2));
+        cltSearch = searchClt(cde->getArg(1));
 
         if (cltSearch.empty())
         {
+            cout<<"Erreur clt"<<endl;
             newCde->setError("le client désigné n'existe pas",254);
             break;
         }
+        cout<<"message : "<<cde->getArg(2)<<endl;
 
         newCde->addArg(cde->getArg(1));
         newCde->addArg(cde->getArg(2));
@@ -595,7 +594,6 @@ void Server::send(Commande *cde,const string nameClt)
         break;
 
     case 129 :
-        cout<<"Message cout : "<<cde->createMsg()<<endl;
         writeToClt(cde->createMsg(),nameClt);
         break;
 
@@ -672,21 +670,15 @@ void Server::addChan(Channel *chan)
 Commande* Server::whatIsTrame(int sock)
 {
     uint16_t idCde, sizeTrame;
-    //unsigned int cde;
     char cde, buf[4096];
 
     read(sock,&sizeTrame,sizeof(sizeTrame));
     read(sock,&idCde,sizeof(idCde));
     read(sock,&cde,sizeof(cde));
-    cout<<"Size trame : "<<sizeTrame<<endl;
-    cout<<"idCde : "<<idCde<<endl;
-    printf("cde : %x\n",cde);
 
     int tbuf=sizeTrame-sizeof(idCde)-sizeof(cde);
 
     read(sock,buf,tbuf);
-
-    cout<<"Buf : "<<buf;
 
     Commande *Cde = new Commande(idCde,cde);
 

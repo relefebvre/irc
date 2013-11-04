@@ -77,7 +77,8 @@ const string Commande::createMsg() const
     for (int i=1 ; i<=nbArgs ; ++i)
         mess += getArg(i)+"\n";
     size = mess.length()+3;
-    sprintf(protocol,"%d%d%x",size,idCde,cde);
-    mess = protocol+mess+"\n";
+    cout<<"taille : "<<size<<endl;
+    sprintf(protocol,"%u%d%x",size,idCde,errNum);
+    mess = protocol+mess;
     return mess;
 }
