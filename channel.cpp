@@ -4,6 +4,8 @@
 #include "string.h"
 #include <unistd.h>
 #include <regex.h>
+#include <stdint.h>
+#include <iostream>
 
 
 
@@ -35,11 +37,16 @@ void Channel::setTopic(const string topic)
 }
 
 
-void Channel::broadcast(const Message *message)
+void Channel::broadcast(const char *message)
 {
+    uint16_t B ;
+    uint16_t *taille = &B ;
+    memcpy(taille, message,sizeof(B)) ;
+    cout<<"Taille totale de la trame à envoyer : "<<*taille<<"\n"<<endl ;
+
     for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
     {
-        write((*i)->getSock(), message->getMess(),message->getSize());
+        write((*i)->getSock(), message,*taille+2);
     }
 }
 
@@ -148,5 +155,3 @@ list<Client*> Channel::listBan() const
 {
     return banned;
 }
-
-

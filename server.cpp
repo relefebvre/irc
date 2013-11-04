@@ -123,14 +123,20 @@ void Server::addAllSockets(fd_set *readfd)
 
 
 
-int Server::writeToClt(Message *message, const string nameClt) const
+int Server::writeToClt(const char *message, const string nameClt) const
 {
+    uint16_t B ;
+    uint16_t *taille = &B ;
+    memcpy(taille, message,sizeof(B)) ;
+    cout<<"Taille totale de la trame à envoyer : "<<*taille<<"\n"<<endl ;
+
+
     for (list<Client*>::const_iterator i=clients.begin() ; i != clients.end() ; ++i)
     {
         if ((*i)->getName() == nameClt)
         {
-            //cout<<"Ecriture : "<<message<<endl;
-            write((*i)->getSock(), message->getMess(),message->getSize());
+           // cout<<"Ecriture : "<<message<<endl;
+            write((*i)->getSock(), message,*taille+2);
             return 0;
         }
     }
@@ -585,16 +591,22 @@ void Server::send(Commande *cde,const string nameClt)
 {
     Channel* chan;
 
+    char trame[4096] ;
+
+    cde->createMsg(trame) ;
+
     switch (cde->getCde()) {
+
+
 
     case 128 :
         cout<<"Commande 128"<<endl;
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->createMsg());
+        chan->broadcast(trame);
         break;
 
     case 129 :
-        writeToClt(cde->createMsg(),cde->getArg(1));
+        writeToClt(trame,nameClt);
         break;
 
     case 130 :
@@ -603,26 +615,26 @@ void Server::send(Commande *cde,const string nameClt)
 
     case 131 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->createMsg());
+        chan->broadcast(trame);
         break;
 
     case 132 :
-        writeToClt(cde->createMsg(),nameClt);
+        writeToClt(trame,nameClt);
         break;
 
     case 133 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->createMsg());
+        chan->broadcast(trame);
         break;
 
     case 134 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->createMsg());
+        chan->broadcast(trame);
         break;
 
     case 135 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->createMsg());
+        chan->broadcast(trame);
         break;
 
     case 136 :
@@ -630,7 +642,7 @@ void Server::send(Commande *cde,const string nameClt)
 
     case 137 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->createMsg());
+        chan->broadcast(trame);
         break;
     }
 }

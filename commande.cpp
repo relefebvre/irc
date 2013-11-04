@@ -43,7 +43,7 @@ string Commande::getArg(const int num) const
             return (*it);
         ++i;
        }
-    assert(true);
+    assert(false);
 }
 
 void Commande::setError(const string err, const int errNum)
@@ -62,20 +62,23 @@ const string &Commande::getError() const
 }
 
 
-Message* Commande::createMsg() const
+int Commande::createMsg(char *trame) const
 {
     string mess;
-    char *trame;
     uint16_t size;
     for(list<string>::const_iterator it=args.begin(); it != args.end() ; ++it)
         mess += (*it)+"\n";
-    size = mess.length()+sizeof(idCde)+sizeof(cde);
-    trame = new char[size+sizeof(size)];
-
+    size = mess.length()+3;
+    cout<<"taille : "<<size<<endl;
+#warning Ici sans doute erreur de generation de la trame
     memcpy(trame,&size,sizeof(size));
-    memcpy(trame+sizeof(size),&idCde,sizeof(idCde));
-    memcpy(trame+sizeof(size)+sizeof(idCde),&cde,sizeof(cde));
-    memcpy(trame+sizeof(size)+sizeof(idCde)+sizeof(cde),mess.c_str(),mess.length());
-
-    return new Message(trame,size+sizeof(size));
+    memcpy(trame+2,&idCde,sizeof(idCde));
+    memcpy(trame+4,&cde,sizeof(cde));
+    memcpy(trame+5,mess.c_str(),strlen(mess.c_str()));
+    /*printf("Message : %x",trame[0]);
+    printf("Message : %x",trame[1]);
+    printf("Message : %x",trame[2]);
+    printf("Message : %x",trame[3]);
+    printf("Message : %x",trame[4]);*/
+    return 0 ;
 }

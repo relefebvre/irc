@@ -43,7 +43,7 @@ public:
     void addAllSockets(fd_set *readfd) ;
     void closeAllSockets() ;
 
-    int writeToClt(Message *message, const string nameClt) const ;
+    int writeToClt(const char *message, const string nameClt) const ;
 
     void routine();
     void closeAll();

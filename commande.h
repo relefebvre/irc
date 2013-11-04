@@ -5,7 +5,6 @@
 #include <stdint.h>
 #include <list>
 #include <string>
-#include "message.h"
 
 using namespace std;
 
@@ -35,7 +34,7 @@ public:
     void setError(const string err,const int errNum);
     const string & getError() const;
 
-    Message *createMsg() const;
+    int createMsg(char *trame) const;
 };
 
 #endif // COMMANDE_H
