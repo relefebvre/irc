@@ -299,6 +299,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         else
         {
             newCde = new Commande(cde->getIdCde(),(char)134);
+            newCde->addArg(cde->getArg(1));
             for (list<Client*>::const_iterator it=cltSearch.begin(); it!=cltSearch.end(); ++it)
                 newCde->addArg((*it)->getName());
             newCde->addArg(nameClt);
@@ -545,14 +546,13 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 void Server::send(Commande *cde,const string nameClt)
 {
     Channel* chan;
-    int i;
 
     switch (cde->getCde()) {
 
     case 128 :
         cout<<"Commande 128"<<endl;
         chan = channelByName(cde->getArg(1));
-        chan->broadcast(cde->getArg(2)+" : "+cde->getArg(3));
+        chan->broadcast(cde->createMsg());
         break;
 
     case 129 :
@@ -566,27 +566,26 @@ void Server::send(Commande *cde,const string nameClt)
 
     case 131 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast("Nouveau Topic : "+cde->getArg(2));
+        chan->broadcast(cde->createMsg());
         break;
 
     case 132 :
-        writeToClt("Le client "+cde->getArg(1)+" devient "+cde->getArg(2),nameClt);
+        writeToClt(cde->createMsg(),nameClt);
         break;
 
     case 133 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast("L'utilisateur : "+cde->getArg(2)+" a quitté le channel");
+        chan->broadcast(cde->createMsg());
         break;
 
     case 134 :
         chan = channelByName(cde->getArg(1));
-        for (i=2 ; i<cde->getNbArgs() ; ++i)
-            chan->broadcast("L'utilisateur : "+cde->getArg(i)+" a été kické du channel");
+        chan->broadcast(cde->createMsg());
         break;
 
     case 135 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast("Ban : "+cde->getArg(2));
+        chan->broadcast(cde->createMsg());
         break;
 
     case 136 :
@@ -594,7 +593,7 @@ void Server::send(Commande *cde,const string nameClt)
 
     case 137 :
         chan = channelByName(cde->getArg(1));
-        chan->broadcast("L'utilisateur : "+cde->getArg(2)+" a rejoint le channel");
+        chan->broadcast(cde->createMsg());
         break;
     }
 }
