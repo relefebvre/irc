@@ -123,14 +123,14 @@ void Server::addAllSockets(fd_set *readfd)
 
 
 
-int Server::writeToClt(const string message, const string nameClt) const
+int Server::writeToClt(Message *message, const string nameClt) const
 {
     for (list<Client*>::const_iterator i=clients.begin() ; i != clients.end() ; ++i)
     {
         if ((*i)->getName() == nameClt)
         {
-            cout<<"Ecriture : "<<message<<endl;
-            write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
+            //cout<<"Ecriture : "<<message<<endl;
+            write((*i)->getSock(), message->getMess(),message->getSize());
             return 0;
         }
     }

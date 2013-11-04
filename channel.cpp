@@ -35,11 +35,11 @@ void Channel::setTopic(const string topic)
 }
 
 
-void Channel::broadcast(const string message)
+void Channel::broadcast(const Message *message)
 {
     for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
     {
-        write((*i)->getSock(), message.c_str(),strlen(message.c_str()));
+        write((*i)->getSock(), message->getMess(),message->getSize());
     }
 }
 

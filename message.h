@@ -7,18 +7,17 @@ using namespace std;
 
 class Message
 {
-    string mess;
-    string nameClt;
+    char* mess;
+    int size;
 
 public:
 
-    static int nbMess;
+    Message(char *mess, int size);
 
-    Message(string messNew, string nameCltNew);
+    const char* getMess() const;
 
-    string getMess();
+    int getSize() const;
 
-    string getName();
 };
 
 #endif // MESSAGE_H

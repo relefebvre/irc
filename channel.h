@@ -29,7 +29,7 @@ public:
     const string & getTopic() const;
     void setTopic(const string topic);
     void addUser(Client *) ;
-    void broadcast(const string message) ;
+    void broadcast(const Message *message) ;
 
     list<Client*> searchClt() const;
 

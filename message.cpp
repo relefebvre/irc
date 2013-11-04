@@ -1,19 +1,17 @@
 #include "message.h"
 
-int Message::nbMess = 0;
-
-Message::Message(string mess, string nameClt)
-    :mess(mess), nameClt(nameClt)
+Message::Message(char *mess, int size)
+    :mess(mess),size(size)
 {
-    Message::nbMess++;
 }
 
-string Message::getMess()
+const char* Message::getMess() const
 {
     return mess;
 }
 
-string Message::getName()
+int Message::getSize() const
 {
-    return nameClt;
+    return size;
 }
+
