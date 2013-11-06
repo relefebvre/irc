@@ -16,11 +16,6 @@ void Commande::addArg(const string &arg)
     args.push_back(arg);
 }
 
-void Commande::affichArgs()
-{
-    for (list<string>::const_iterator it=args.begin() ; it != args.end() ; ++it)
-        cout<<*it<<endl;
-}
 
 const unsigned char &Commande::getCde() const
 {
@@ -35,15 +30,7 @@ const unsigned char &Commande::getCde() const
 
 string Commande::getArg(const int num) const
 {
-    int i=1;
-
-    for(list<string>::const_iterator it=args.begin(); it != args.end() ; ++it)
-    {
-        if(i == num)
-            return (*it);
-        ++i;
-       }
-    assert(true);
+    return args[num];
 }
 
 void Commande::setError(const string err, const int errNum)
@@ -66,8 +53,8 @@ int Commande::createMsg(char *trame) const
 {
     string mess;
     uint16_t size;
-    for(list<string>::const_iterator it=args.begin(); it != args.end() ; ++it)
-        mess += (*it)+"\n";
+    for(unsigned int i=0 ; i<args.size() ; ++i)
+        mess += args[i]+"\n";
     size = mess.length()+3;
     cout<<"taille : "<<size<<endl;
 #warning Ici sans doute erreur de generation de la trame
@@ -75,10 +62,5 @@ int Commande::createMsg(char *trame) const
     memcpy(trame+2,&idCde,sizeof(idCde));
     memcpy(trame+4,&cde,sizeof(cde));
     memcpy(trame+5,mess.c_str(),strlen(mess.c_str()));
-    /*printf("Message : %x",trame[0]);
-    printf("Message : %x",trame[1]);
-    printf("Message : %x",trame[2]);
-    printf("Message : %x",trame[3]);
-    printf("Message : %x",trame[4]);*/
     return 0 ;
 }

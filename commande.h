@@ -3,7 +3,7 @@
 
 #include <unistd.h>
 #include <stdint.h>
-#include <list>
+#include <vector>
 #include <string>
 
 using namespace std;
@@ -12,7 +12,7 @@ class Commande
 {
     uint16_t idCde;
     unsigned char cde;
-    list<string> args;
+    vector<string> args;
     int errNum;
     string err;
 
@@ -20,8 +20,6 @@ public:
     Commande(uint16_t idCde, char cde);
 
     void addArg(const string & arg);
-
-    void affichArgs();
 
     const unsigned char &getCde() const;
 
