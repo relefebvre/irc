@@ -30,7 +30,7 @@ const unsigned char &Commande::getCde() const
 
 string Commande::getArg(const int num) const
 {
-    return args[num];
+    return args[num-1];
 }
 
 void Commande::setError(const string err, const int errNum)

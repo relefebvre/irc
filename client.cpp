@@ -5,6 +5,7 @@
  */
 
 #include "client.h"
+#include <sstream>
 
 int Client::maxSock = 0;
 
@@ -13,7 +14,9 @@ Client::Client(int sock)
 {
     if (sock+1 > Client::maxSock)
         Client::maxSock = sock+1;
-    name="Anonyme";
+    ostringstream tmp;
+    tmp << "Anonyme" << sock;
+    name= tmp.str();
 }
 
 const int &Client::getSock() const
