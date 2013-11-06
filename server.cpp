@@ -206,13 +206,13 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 3 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
-        newCde->setDest(nameClt);
-
         if (cde->getNbArgs() != 1)
         {
             cde->setError("",253,nameClt);
             break;
         }
+
+        newCde->setDest(nameClt);
 
         cltSearch = searchClt(cde->getArg(1));
         //Erreur motif, modifier fonction//
@@ -231,8 +231,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 4 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
-        newCde->setDest(nameClt);
-
         if (cde->getNbArgs() != 1)
         {
             newCde->setError("",253,nameClt);
@@ -246,6 +244,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
+
+        newCde->setDest(nameClt);
 
         cltSearch = chan->searchClt();
 
@@ -267,8 +267,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         newCde->setDest(nameClt);
 
-        cout<<"Argument 1 : "<<cde->getArg(1)<<endl;
-
         chanSearch = searchChan(cde->getArg(1));
         //Erreur motif, modifier fonction//
 
@@ -285,8 +283,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 6 :
         newCde = new Commande(cde->getIdCde(),(char)131);
 
-        newCde->setDest(cde->getArg(1));
-
         if (cde->getNbArgs() > 2)
         {
             newCde->setError("",253,nameClt);
@@ -300,6 +296,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
+
+        newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() == 1)
         {
@@ -319,8 +317,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 7 :
         newCde = new Commande(cde->getIdCde(),(char)134);
 
-        newCde->setDest(cde->getArg(1));
-
         if (cde->getNbArgs() != 2)
         {
             newCde->setError("",253,nameClt);
@@ -334,6 +330,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
+
+        newCde->setDest(cde->getArg(1));
 
         cltSearch = chan->kickClt(cde->getArg(1));
 
@@ -357,8 +355,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 8 :
         newCde = new Commande(cde->getIdCde(),(char)135);
 
-         newCde->setDest(cde->getArg(1));
-
         if (cde->getNbArgs() != 2)
         {
             newCde->setError("",253,nameClt);
@@ -372,6 +368,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
+
+         newCde->setDest(cde->getArg(1));
 
         if ((chan->addBanned(cde->getArg(2))) == 0)
             newCde->setError("Le nick n'est pas sur ce channel",254,nameClt);
@@ -389,8 +387,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 9 :
         newCde = new Commande(cde->getIdCde(),(char)135);
-
-         newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() != 2)
         {
@@ -412,6 +408,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
             break;
         }
 
+        newCde->setDest(cde->getArg(1));
+
         newCde->addArg(cde->getArg(2));
         newCde->addArg(cde->getArg(1));
         newCde->addArg("o");
@@ -423,8 +421,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 20 :
         newCde = new Commande(cde->getIdCde(),(char)135);
-
-         newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() != 2)
         {
@@ -446,6 +442,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
             break;
         }
 
+        newCde->setDest(cde->getArg(1));
+
         newCde->addArg(cde->getArg(2));
         newCde->addArg(cde->getArg(1));
         newCde->addArg("");
@@ -457,8 +455,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 21 :
         newCde = new Commande(cde->getIdCde(),(char)137);
 
-         newCde->setDest(cde->getArg(1));
-
         if (cde->getNbArgs() != 1)
         {
             newCde->setError("",253,nameClt);
@@ -469,6 +465,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (chan == NULL)
             addChan(chan = new Channel(cde->getArg(1), nameClt));
+
+        newCde->setDest(cde->getArg(1));
 
         if (chan->isBanned(nameClt))
         {
@@ -518,8 +516,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 23 :
         newCde = new Commande(cde->getIdCde(),(char)133);
 
-         newCde->setDest(cde->getArg(1));
-
         if (cde->getNbArgs() != 1)
         {
             newCde->setError("",253,nameClt);
@@ -534,6 +530,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              break;
         }
 
+        newCde->setDest(cde->getArg(1));
+
         chan->kickClt(nameClt);
 
             newCde->addArg(cde->getArg(1));
@@ -546,8 +544,6 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 24 :
         newCde = new Commande(cde->getIdCde(),(char)135);
-
-         newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() != 2)
         {
@@ -562,6 +558,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              newCde->setError("Le channel n'existe pas",254,nameClt);
              return NULL;
         }
+
+        newCde->setDest(cde->getArg(1));
 
        chan->supprBanned(cde->getArg(2));
 

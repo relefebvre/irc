@@ -72,8 +72,12 @@ list<Client*> Channel::kickClt(const string motif)
         {
             if ((regexec(&expr,(*i)->getName().c_str(),0,NULL,0)) == 0)
             {
-                users.erase(i);
+                cout<<"Nom Clt : "<<(*i)->getName()<<endl;
                 clt.push_back(*i);
+                cout<<"ajout liste OK"<<endl;
+                i = users.erase(i);
+
+
             }
         }
     }
@@ -109,7 +113,7 @@ int Channel::supprBanned(const string motif)
         for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
             if ((regexec(&expr,(*i)->getName().c_str(),0,NULL,0)) == 0)
             {
-                banned.erase(i);
+                i = banned.erase(i);
                 ++nb;
             }
     }

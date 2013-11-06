@@ -75,9 +75,13 @@ int Commande::createMsg(char *trame) const
         size = err.length()+3;
         mess = err;
     }
+
     memcpy(trame,&size,sizeof(size));
     memcpy(trame+2,&idCde,sizeof(idCde));
-    memcpy(trame+4,&errNum,sizeof(errNum));
+    if (errNum == 0)
+        memcpy(trame+4,&cde,sizeof(cde));
+    else
+        memcpy(trame+4,&errNum,sizeof(errNum));
     memcpy(trame+5,mess.c_str(),strlen(mess.c_str()));
     return 0 ;
 }
