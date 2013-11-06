@@ -63,6 +63,7 @@ int main(int argc, char **argv)
 
     cout << "Port ouvert : " << port << endl;
 
+
     Commande::initErrors();
 
     serv.init(port);

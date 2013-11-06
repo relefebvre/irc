@@ -49,7 +49,7 @@ public:
     void closeAll();
 
     Commande* receive(Commande *cde, const string nameClt) ;
-    void send(Commande *cde, const string nameClt);
+    void send(Commande *cde);
 
     //Méthode sur les chan
 

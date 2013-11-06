@@ -6,6 +6,7 @@
 #include <iostream>
 #include <inttypes.h>
 #include <regex.h>
+#include <cerrno>
 
 
 
@@ -96,8 +97,7 @@ void Server::routine()
 
                cde1 = receive(cde,(*i)->getName());
 
-
-               send(cde1,(*i)->getName());
+               send(cde1);
             }
 
 }
@@ -261,11 +261,13 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 5 :
         if (cde->getNbArgs() == 0)
-            cde->addArg("*");
+            cde->addArg("");
 
         newCde = new Commande(cde->getIdCde(),(char)129);
 
         newCde->setDest(nameClt);
+
+        cout<<"Argument 1 : "<<cde->getArg(1)<<endl;
 
         chanSearch = searchChan(cde->getArg(1));
         //Erreur motif, modifier fonction//
@@ -278,10 +280,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         chanSearch.erase(chanSearch.begin(),chanSearch.end());
         break;
 
-    /*-----/topic newTopic----*/
+    /*-----/topic channel [newTopic]----*/
 
     case 6 :
         newCde = new Commande(cde->getIdCde(),(char)131);
+
+        newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() > 2)
         {
@@ -297,7 +301,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
              break;
         }
 
-        if (cde->getNbArgs() == 0)
+        if (cde->getNbArgs() == 1)
         {
             newCde->addArg(chan->getTopic());
         }
@@ -314,6 +318,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 7 :
         newCde = new Commande(cde->getIdCde(),(char)134);
+
+        newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() != 2)
         {
@@ -351,6 +357,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 8 :
         newCde = new Commande(cde->getIdCde(),(char)135);
 
+         newCde->setDest(cde->getArg(1));
+
         if (cde->getNbArgs() != 2)
         {
             newCde->setError("",253,nameClt);
@@ -381,6 +389,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 9 :
         newCde = new Commande(cde->getIdCde(),(char)135);
+
+         newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() != 2)
         {
@@ -414,6 +424,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 20 :
         newCde = new Commande(cde->getIdCde(),(char)135);
 
+         newCde->setDest(cde->getArg(1));
+
         if (cde->getNbArgs() != 2)
         {
             newCde->setError("",253,nameClt);
@@ -445,6 +457,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 21 :
         newCde = new Commande(cde->getIdCde(),(char)137);
 
+         newCde->setDest(cde->getArg(1));
+
         if (cde->getNbArgs() != 1)
         {
             newCde->setError("",253,nameClt);
@@ -472,6 +486,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 22 :
         newCde = new Commande(cde->getIdCde(),(char)132);
+
+         newCde->setDest(nameClt);
 
         if (cde->getNbArgs() != 1)
         {
@@ -502,6 +518,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 23 :
         newCde = new Commande(cde->getIdCde(),(char)133);
 
+         newCde->setDest(cde->getArg(1));
+
         if (cde->getNbArgs() != 1)
         {
             newCde->setError("",253,nameClt);
@@ -528,6 +546,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 24 :
         newCde = new Commande(cde->getIdCde(),(char)135);
+
+         newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() != 2)
         {
@@ -558,7 +578,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 25 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
-        newCde->addArg(nameClt);
+         newCde->setDest(nameClt);
 
         if (cde->getNbArgs() != 1)
         {
@@ -589,7 +609,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 }
 
 
-void Server::send(Commande *cde,const string nameClt)
+void Server::send(Commande *cde)
 {
     Channel* chan;
 
@@ -615,26 +635,26 @@ void Server::send(Commande *cde,const string nameClt)
         break;
 
     case 131 :
-        chan = channelByName(cde->getArg(1));
+        chan = channelByName(cde->getDest());
         chan->broadcast(trame);
         break;
 
     case 132 :
-        writeToClt(trame,nameClt);
+        writeToClt(trame,cde->getDest());
         break;
 
     case 133 :
-        chan = channelByName(cde->getArg(1));
+        chan = channelByName(cde->getDest());
         chan->broadcast(trame);
         break;
 
     case 134 :
-        chan = channelByName(cde->getArg(1));
+        chan = channelByName(cde->getDest());
         chan->broadcast(trame);
         break;
 
     case 135 :
-        chan = channelByName(cde->getArg(1));
+        chan = channelByName(cde->getDest());
         chan->broadcast(trame);
         break;
 
@@ -642,7 +662,7 @@ void Server::send(Commande *cde,const string nameClt)
         break;
 
     case 137 :
-        chan = channelByName(cde->getArg(1));
+        chan = channelByName(cde->getDest());
         chan->broadcast(trame);
         break;
     }
@@ -756,8 +776,9 @@ list<Channel*> Server::searchChan(const string motifChan) const
                 if ((regexec(&expr,(*it)->getChanName().c_str(),0,NULL,0)) == 0)
                     chanSearch.push_back(*it);
 
-
     }
+    else
+        cout<<"Erreur : "<<errno<<endl;
 
     return chanSearch;
 }

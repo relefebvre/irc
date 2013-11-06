@@ -42,7 +42,6 @@ void Channel::broadcast(const char *message)
     uint16_t B ;
     uint16_t *taille = &B ;
     memcpy(taille, message,sizeof(B)) ;
-    cout<<"Taille totale de la trame à envoyer : "<<*taille<<"\n"<<endl ;
 
     for (list<Client*>::iterator i=users.begin() ; i != users.end() ; ++i)
     {
