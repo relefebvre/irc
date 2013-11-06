@@ -4,11 +4,19 @@
 #include <string.h>
 #include "commande.h"
 #include <cassert>
+#include <fstream>
+
+map<char, string> Commande::errors;
 
 Commande::Commande(uint16_t idCde, char cde)
     :idCde(idCde), cde(cde)
 {
     errNum=0;
+}
+
+void Commande::setCde(char newCde)
+{
+    cde = newCde;
 }
 
 void Commande::addArg(const string &arg)
@@ -33,12 +41,12 @@ string Commande::getArg(const int num) const
     return args[num-1];
 }
 
-void Commande::setError(const string err, const int errNum)
+void Commande::setError(const string err, const char errNum)
 {
     this->errNum = errNum;
 
-    if (err == "");
-        //Erreur par défeut //Map<message erreur, code erreur>////
+    if (err == "")
+        this->err = errors[errNum];
     else
         this->err = err;
 }
@@ -53,14 +61,39 @@ int Commande::createMsg(char *trame) const
 {
     string mess;
     uint16_t size;
-    for(unsigned int i=0 ; i<args.size() ; ++i)
+
+    for(unsigned int i=1 ; i<args.size() ; ++i)
         mess += args[i]+"\n";
     size = mess.length()+3;
-    cout<<"taille : "<<size<<endl;
-#warning Ici sans doute erreur de generation de la trame
+
+    if (errNum != 0)
+    {
+        size = err.length()+3;
+        mess = err;
+    }
     memcpy(trame,&size,sizeof(size));
     memcpy(trame+2,&idCde,sizeof(idCde));
-    memcpy(trame+4,&cde,sizeof(cde));
+    memcpy(trame+4,&errNum,sizeof(errNum));
     memcpy(trame+5,mess.c_str(),strlen(mess.c_str()));
     return 0 ;
+}
+
+void Commande::initErrors()
+{
+    ifstream fic("errors.don",ios::in);
+
+    if (fic)
+    {
+        int errNum;
+        while(fic >> errNum)
+        {
+            string err;
+            getline(fic,err);
+            errors[errNum] = err;
+        }
+        fic.close();
+    }
+    else
+        cout<<"Erreur d'ouverture de fichier"<<endl;
+
 }

@@ -60,6 +60,9 @@ public:
 
     list<Client*> searchClt(const string motifClt) const;
 
+    bool isClt(const string nameClt) const;
+    Client* searchOneClt(const string nameClt) const;
+
     list<Channel*> searchChan(const string motifChan) const;
 
     int changeNameClt(const string nameClt, const string newName);

@@ -95,9 +95,9 @@ void Server::routine()
                 cde = whatIsTrame((*i)->getSock());
 
                cde1 = receive(cde,(*i)->getName());
-                  //  writeToClt(cde->getError(),(*i)->getName());
-                // else
-                    send(cde1,(*i)->getName());
+
+
+               send(cde1,(*i)->getName());
             }
 
 }
@@ -128,14 +128,12 @@ int Server::writeToClt(const char *message, const string nameClt) const
     uint16_t B ;
     uint16_t *taille = &B ;
     memcpy(taille, message,sizeof(B)) ;
-    cout<<"Taille totale de la trame à envoyer : "<<*taille<<"\n"<<endl ;
 
 
     for (list<Client*>::const_iterator i=clients.begin() ; i != clients.end() ; ++i)
     {
         if ((*i)->getName() == nameClt)
         {
-           // cout<<"Ecriture : "<<message<<endl;
             write((*i)->getSock(), message,*taille+2);
             return 0;
         }
@@ -160,20 +158,19 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            cout<<"Erreur args"<<endl;
             newCde->setError("",253);
+            newCde->addArg(nameClt);
             break;
         }
 
-        cltSearch = searchClt(cde->getArg(1));
 
-        if (cltSearch.empty())
+        if (!isClt(cde->getArg(1)))
         {
             cout<<"Erreur clt"<<endl;
             newCde->setError("le client désigné n'existe pas",254);
+            newCde->addArg(nameClt);
             break;
         }
-        cout<<"message : "<<cde->getArg(2)<<endl;
 
         newCde->addArg(cde->getArg(1));
         newCde->addArg(cde->getArg(2));
@@ -209,6 +206,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 3 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
+        newCde->addArg(nameClt);
+
         if (cde->getNbArgs() != 1)
         {
             cde->setError("",253);
@@ -231,6 +230,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
     case 4 :
         newCde = new Commande(cde->getIdCde(),(char)129);
+
+        newCde->addArg(nameClt);
 
         if (cde->getNbArgs() != 1)
         {
@@ -263,6 +264,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
             cde->addArg("*");
 
         newCde = new Commande(cde->getIdCde(),(char)129);
+
+         newCde->addArg(nameClt);
 
         chanSearch = searchChan(cde->getArg(1));
         //Erreur motif, modifier fonction//
@@ -440,7 +443,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
   /*-----/join channel------*/
 
     case 21 :
-         newCde = new Commande(cde->getIdCde(),(char)137);
+        newCde = new Commande(cde->getIdCde(),(char)137);
 
         if (cde->getNbArgs() != 1)
         {
@@ -451,14 +454,14 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         chan = channelByName(cde->getArg(1));
 
         if (chan == NULL)
-        {
             addChan(chan = new Channel(cde->getArg(1), nameClt));
-            chan->addUser((searchClt(nameClt)).front());
-        }
 
         if (chan->isBanned(nameClt))
         {
             newCde->setError("l'utilisateur est banni du channel",252);
+            newCde->setCde((char)129);
+            newCde->addArg(nameClt);
+            newCde->addArg("Server");
             break;
         }
 
@@ -558,6 +561,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 25 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
+        newCde->addArg(nameClt);
+
         if (cde->getNbArgs() != 1)
         {
             newCde->setError("",253);
@@ -594,6 +599,8 @@ void Server::send(Commande *cde,const string nameClt)
     char trame[4096] ;
 
     cde->createMsg(trame) ;
+
+    cout<<"Message OK"<<endl;
 
     switch (cde->getCde()) {
 
@@ -683,6 +690,7 @@ Commande* Server::whatIsTrame(int sock)
 {
     uint16_t idCde, sizeTrame;
     char cde, buf[4096];
+    memset(buf,0,sizeof(buf));
 
     read(sock,&sizeTrame,sizeof(sizeTrame));
     read(sock,&idCde,sizeof(idCde));
@@ -723,6 +731,22 @@ list<Client*> Server::searchClt(const string motifClt) const
     }
 
     return cltSearch;
+}
+
+bool Server::isClt(const string nameClt) const
+{
+    for(list<Client*>::const_iterator it=clients.begin() ; it!=clients.end() ; it++)
+        if ((*it)->getName() == nameClt)
+            return true;
+    return false;
+}
+
+Client* Server::searchOneClt(const string nameClt) const
+{
+    for(list<Client*>::const_iterator it=clients.begin() ; it!=clients.end() ; it++)
+        if ((*it)->getName() == nameClt)
+            return (*it);
+    return NULL;
 }
 
 

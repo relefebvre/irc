@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <vector>
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -13,11 +14,16 @@ class Commande
     uint16_t idCde;
     unsigned char cde;
     vector<string> args;
-    int errNum;
+    char errNum;
     string err;
 
+
 public:
+    static map<char, string> errors;
+
     Commande(uint16_t idCde, char cde);
+
+    void setCde(char newCde);
 
     void addArg(const string & arg);
 
@@ -29,10 +35,12 @@ public:
 
     string getArg(const int num) const;
 
-    void setError(const string err,const int errNum);
+    void setError(const string err,const char errNum);
     const string & getError() const;
 
     int createMsg(char *trame) const;
+
+    static void initErrors();
 };
 
 #endif // COMMANDE_H
