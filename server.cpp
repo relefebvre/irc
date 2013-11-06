@@ -158,21 +158,19 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
-            newCde->addArg(nameClt);
+            newCde->setError("",253,nameClt);
             break;
         }
 
 
         if (!isClt(cde->getArg(1)))
         {
-            cout<<"Erreur clt"<<endl;
-            newCde->setError("le client désigné n'existe pas",254);
-            newCde->addArg(nameClt);
+            newCde->setError("le client désigné n'existe pas",254,nameClt);
             break;
         }
 
-        newCde->addArg(cde->getArg(1));
+        newCde->setDest(cde->getArg(1));
+        newCde->addArg(nameClt);
         newCde->addArg(cde->getArg(2));
         break;
 
@@ -183,21 +181,23 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
-        chan = channelByName(cde->getArg(1).substr(1));
+        /*chan = channelByName(cde->getArg(1).substr(1));   Si  #devant le nom de channel */
+        chan = channelByName(cde->getArg(1));
 
         if (chan == NULL)
         {
-            newCde->setError("Le channel n'existe pas",254);
+            newCde->setError("Le channel n'existe pas",254,nameClt);
             break;
         }
 
-            newCde->addArg(cde->getArg(1));
-            newCde->addArg(nameClt);
-            newCde->addArg(cde->getArg(2));
+        newCde->setDest(cde->getArg(1));
+        newCde->addArg(cde->getArg(1));
+        newCde->addArg(nameClt);
+        newCde->addArg(cde->getArg(2));
 
         break;
 
@@ -206,11 +206,11 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 3 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
-        newCde->addArg(nameClt);
+        newCde->setDest(nameClt);
 
         if (cde->getNbArgs() != 1)
         {
-            cde->setError("",253);
+            cde->setError("",253,nameClt);
             break;
         }
 
@@ -231,11 +231,11 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     case 4 :
         newCde = new Commande(cde->getIdCde(),(char)129);
 
-        newCde->addArg(nameClt);
+        newCde->setDest(nameClt);
 
         if (cde->getNbArgs() != 1)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -243,7 +243,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
 
@@ -265,7 +265,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         newCde = new Commande(cde->getIdCde(),(char)129);
 
-         newCde->addArg(nameClt);
+        newCde->setDest(nameClt);
 
         chanSearch = searchChan(cde->getArg(1));
         //Erreur motif, modifier fonction//
@@ -285,7 +285,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() > 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -293,7 +293,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
 
@@ -317,7 +317,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -325,14 +325,14 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
 
         cltSearch = chan->kickClt(cde->getArg(1));
 
         if (cltSearch.empty())
-            newCde->setError("Le client n'existe pas",254);
+            newCde->setError("Le client n'existe pas",254,nameClt);
         else
         {
 
@@ -353,7 +353,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -361,12 +361,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
 
         if ((chan->addBanned(cde->getArg(2))) == 0)
-            newCde->setError("Le nick n'est pas sur ce channel",254);
+            newCde->setError("Le nick n'est pas sur ce channel",254,nameClt);
         else
         {
 
@@ -384,7 +384,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -392,13 +392,13 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              return NULL;
         }
 
         if ((chan->setOp(cde->getArg(2))) == -1)
         {
-            newCde->setError("Le nick n'est pas sur ce channel",254);
+            newCde->setError("Le nick n'est pas sur ce channel",254,nameClt);
             break;
         }
 
@@ -416,7 +416,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -424,13 +424,13 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              return NULL;
         }
 
         if ((chan->supprOp(cde->getArg(2))) == -1)
         {
-            newCde->setError("Le nick n'est pas sur ce channel",254);
+            newCde->setError("Le nick n'est pas sur ce channel",254,nameClt);
             break;
         }
 
@@ -447,7 +447,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 1)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -458,10 +458,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (chan->isBanned(nameClt))
         {
-            newCde->setError("l'utilisateur est banni du channel",252);
-            newCde->setCde((char)129);
-            newCde->addArg(nameClt);
-            newCde->addArg("Server");
+            newCde->setError("l'utilisateur est banni du channel",252,nameClt);
             break;
         }
 
@@ -478,19 +475,19 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 1)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
         if (cde->getArg(1) == "")
         {
-            newCde->setError("Nick invalide",250);
+            newCde->setError("Nick invalide",250,nameClt);
             break;
         }
 
         if (changeNameClt(nameClt,cde->getArg(1)) == -1)
         {
-            cde->setError("Nick déja pris",250);
+            cde->setError("Nick déja pris",250,nameClt);
             break;
         }
 
@@ -507,7 +504,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 1)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -515,7 +512,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
 
@@ -534,7 +531,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 2)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -542,7 +539,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              return NULL;
         }
 
@@ -565,7 +562,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if (cde->getNbArgs() != 1)
         {
-            newCde->setError("",253);
+            newCde->setError("",253,nameClt);
             break;
         }
 
@@ -573,7 +570,7 @@ Commande *Server::receive(Commande *cde, const string nameClt)
 
         if(chan == NULL)
         {
-             newCde->setError("Le channel n'existe pas",254);
+             newCde->setError("Le channel n'existe pas",254,nameClt);
              break;
         }
 
@@ -600,20 +597,17 @@ void Server::send(Commande *cde,const string nameClt)
 
     cde->createMsg(trame) ;
 
-    cout<<"Message OK"<<endl;
-
     switch (cde->getCde()) {
 
 
 
     case 128 :
-        cout<<"Commande 128"<<endl;
-        chan = channelByName(cde->getArg(1));
+        chan = channelByName(cde->getDest());
         chan->broadcast(trame);
         break;
 
     case 129 :
-        writeToClt(trame,cde->getArg(1));
+        writeToClt(trame,cde->getDest());
         break;
 
     case 130 :

@@ -16,6 +16,7 @@ class Commande
     vector<string> args;
     char errNum;
     string err;
+    string dest;
 
 
 public:
@@ -35,12 +36,15 @@ public:
 
     string getArg(const int num) const;
 
-    void setError(const string err,const char errNum);
+    void setError(const string err,const char errNum, const string nameClt);
     const string & getError() const;
 
     int createMsg(char *trame) const;
 
     static void initErrors();
+
+    void setDest(const string destinataire);
+    const string getDest() const;
 };
 
 #endif // COMMANDE_H

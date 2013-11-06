@@ -41,7 +41,7 @@ string Commande::getArg(const int num) const
     return args[num-1];
 }
 
-void Commande::setError(const string err, const char errNum)
+void Commande::setError(const string err, const char errNum, const string nameClt)
 {
     this->errNum = errNum;
 
@@ -49,6 +49,9 @@ void Commande::setError(const string err, const char errNum)
         this->err = errors[errNum];
     else
         this->err = err;
+    cde = 129;
+    setDest(nameClt);
+    addArg("Server");
 }
 
 const string &Commande::getError() const
@@ -62,8 +65,9 @@ int Commande::createMsg(char *trame) const
     string mess;
     uint16_t size;
 
-    for(unsigned int i=1 ; i<args.size() ; ++i)
+    for(unsigned int i=0 ; i<args.size() ; ++i)
         mess += args[i]+"\n";
+
     size = mess.length()+3;
 
     if (errNum != 0)
@@ -96,4 +100,14 @@ void Commande::initErrors()
     else
         cout<<"Erreur d'ouverture de fichier"<<endl;
 
+}
+
+void Commande::setDest(const string destinataire)
+{
+    dest = destinataire;
+}
+
+const string Commande::getDest() const
+{
+    return dest;
 }
