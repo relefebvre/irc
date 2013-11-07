@@ -1,7 +1,6 @@
 #ifndef COMMANDE_H
 #define COMMANDE_H
 
-#include <unistd.h>
 #include <stdint.h>
 #include <vector>
 #include <string>
@@ -23,21 +22,21 @@ public:
     static map<char, string> errors;
 
     Commande(uint16_t idCde, char cde);
+    ~Commande();
 
     void setCde(char newCde);
 
     void addArg(const string & arg);
 
-    const unsigned char &getCde() const;
+    const unsigned char & getCde() const;
 
     const uint16_t & getIdCde() const;
 
     int getNbArgs() const { return args.size(); }
 
-    string getArg(const int num) const;
+    const string & getArg(const int num) const;
 
     void setError(const string err,const char errNum, const string nameClt);
-    const string & getError() const;
 
     int createMsg(char *trame) const;
 

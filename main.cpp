@@ -3,24 +3,9 @@
   Fichier : main.cpp
   Fonctionnement : Serveur IRC.
  */
-#include <cassert>
 
 #include <iostream>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <netdb.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <list>
-#include <iterator>
-#include "client.h"
-#include "message.h"
 #include "server.h"
 
 using namespace std;
@@ -31,10 +16,6 @@ using namespace std;
   Ajoute chaque socket de chauque client de la liste client,
   dans readfd.
  */
-
-
-
-
 
 
 
@@ -67,8 +48,7 @@ int main(int argc, char **argv)
     if (serv.getSock()+1 > Client::maxSock)
         Client::maxSock = serv.getSock()+1;
 
-    while(1)
-    serv.routine() ;
+    while(serv.routine() != "quit");
 
 
 

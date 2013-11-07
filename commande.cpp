@@ -1,9 +1,6 @@
 #include <iostream>
-#include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include "commande.h"
-#include <cassert>
 #include <fstream>
 
 map<char, string> Commande::errors;
@@ -12,6 +9,11 @@ Commande::Commande(uint16_t idCde, char cde)
     :idCde(idCde), cde(cde)
 {
     errNum=0;
+}
+
+Commande::~Commande()
+{
+    args.erase(args.begin(), args.end());
 }
 
 void Commande::setCde(char newCde)
@@ -25,18 +27,18 @@ void Commande::addArg(const string &arg)
 }
 
 
-const unsigned char &Commande::getCde() const
+const unsigned char & Commande::getCde() const
 {
     return cde;
 }
 
- const uint16_t & Commande::getIdCde() const
- {
-     return idCde;
- }
+const uint16_t & Commande::getIdCde() const
+{
+    return idCde;
+}
 
 
-string Commande::getArg(const int num) const
+const string & Commande::getArg(const int num) const
 {
     return args[num-1];
 }
@@ -52,11 +54,6 @@ void Commande::setError(const string err, const char errNum, const string nameCl
     cde = 129;
     setDest(nameClt);
     addArg("Server");
-}
-
-const string &Commande::getError() const
-{
-    return err;
 }
 
 

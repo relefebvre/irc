@@ -1,7 +1,6 @@
 #include "channel.h"
-
 #include "client.h"
-#include "string.h"
+#include <string.h>
 #include <unistd.h>
 #include <regex.h>
 #include <stdint.h>
@@ -13,6 +12,18 @@ Channel::Channel(string chanName,string op)
     : chanName(chanName), op(op)
 {
     topic="Default Topic";
+}
+
+Channel::~Channel()
+{
+    for (list<Client*>::iterator it=users.begin() ; it!=users.end() ; ++it)
+        delete *it;
+
+    for (list<Client*>::iterator it=banned.begin() ; it!=banned.end() ; ++it)
+        delete *it;
+
+    users.erase(users.begin(), users.end());
+    banned.erase(banned.begin(), banned.end());
 }
 
 const string &Channel::getOpName() const
@@ -72,12 +83,8 @@ list<Client*> Channel::kickClt(const string motif)
         {
             if ((regexec(&expr,(*i)->getName().c_str(),0,NULL,0)) == 0)
             {
-                cout<<"Nom Clt : "<<(*i)->getName()<<endl;
                 clt.push_back(*i);
-                cout<<"ajout liste OK"<<endl;
                 i = users.erase(i);
-
-
             }
         }
     }
@@ -157,4 +164,9 @@ bool Channel::isBanned(const string nameClt) const
 list<Client*> Channel::listBan() const
 {
     return banned;
+}
+
+bool Channel::isEmpty() const
+{
+    return users.empty();
 }

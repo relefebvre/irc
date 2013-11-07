@@ -34,7 +34,3 @@ void Client::setName(const string name)
     this->name = name;
 }
 
-void Client::setChan(Channel *newChan)
-{
-    chanActif = newChan ;
-}
