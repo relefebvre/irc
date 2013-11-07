@@ -26,10 +26,6 @@
 using namespace std;
 
 
-void addAllSockets(list<Client*> client, fd_set *readfd, int sock);
-void closeAllSockets(list<Client*> client);
-void broadcast(Message* mess, list<Client*> client);
-
 
 /*
   Ajoute chaque socket de chauque client de la liste client,

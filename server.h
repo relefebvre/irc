@@ -26,7 +26,6 @@ class Server
     socklen_t taille;
     list<Channel*> channels ;
     list<Client*> clients;
-    list<Message*> messages;
     fd_set readfd;
 
 
