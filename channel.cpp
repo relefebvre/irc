@@ -26,9 +26,9 @@ Channel::~Channel()
     banned.erase(banned.begin(), banned.end());
 }
 
-const string &Channel::getOpName() const
+bool Channel::isOp(const string nameClt) const
 {
-    return op;
+    return nameClt == op;
 }
 
 

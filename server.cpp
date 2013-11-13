@@ -111,9 +111,9 @@ const string Server::routine()
         if (strcmp(buf,"quit") == 0)
         {
             Commande *cde = new Commande(0,136);
-            cde->addArg("Déconnexion immminente !");
+            cde->addArg("Fermeture du serveur dans 30 secondes !");
             send(cde);
-            sleep(10);
+            sleep(30);
             return "quit";
         }
 
@@ -330,6 +330,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
             break;
         }
 
+        if(!chan->isOp(nameClt))
+        {
+            newCde->setError("",252,nameClt);
+            break;
+        }
+
         newCde->setDest(cde->getArg(1));
 
         if (cde->getNbArgs() == 1)
@@ -361,6 +367,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         if(chan == NULL)
         {
             newCde->setError("Le channel n'existe pas",254,nameClt);
+            break;
+        }
+
+        if(!chan->isOp(nameClt))
+        {
+            newCde->setError("",252,nameClt);
             break;
         }
 
@@ -406,6 +418,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
             break;
         }
 
+        if(!chan->isOp(nameClt))
+        {
+            newCde->setError("",252,nameClt);
+            break;
+        }
+
         newCde->setDest(cde->getArg(1));
 
         if ((chan->addBanned(cde->getArg(2))) == 0)
@@ -437,6 +455,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         {
             newCde->setError("Le channel n'existe pas",254,nameClt);
             return NULL;
+        }
+
+        if(!chan->isOp(nameClt))
+        {
+            newCde->setError("",252,nameClt);
+            break;
         }
 
         if ((chan->setOp(cde->getArg(2))) == -1)
@@ -471,6 +495,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         {
             newCde->setError("Le channel n'existe pas",254,nameClt);
             return NULL;
+        }
+
+        if(!chan->isOp(nameClt))
+        {
+            newCde->setError("",252,nameClt);
+            break;
         }
 
         if ((chan->supprOp(cde->getArg(2))) == -1)
@@ -597,6 +627,12 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         {
             newCde->setError("Le channel n'existe pas",254,nameClt);
             return NULL;
+        }
+
+        if(!chan->isOp(nameClt))
+        {
+            newCde->setError("",252,nameClt);
+            break;
         }
 
         newCde->setDest(cde->getArg(1));

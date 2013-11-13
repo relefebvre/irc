@@ -25,7 +25,7 @@ public:
     Channel(string chanName, string op);
     ~Channel();
 
-    const string & getOpName() const;
+    bool isOp(const string nameClt) const;
     int setOp(const string nameClt);
     int supprOp(const string nameClt);
 
