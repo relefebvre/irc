@@ -1,6 +1,16 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+/*
+ *      Classe Serveur
+ *      Stocke
+ *          - La socket Serveur
+ *          - La liste des Channels
+ *          - La liste des Clients connectés
+ *
+ */
+
+
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -26,7 +36,7 @@ public:
 
     void init(unsigned port);
 
-    int conect();
+    int connect();
 
     int getSock() const;
 

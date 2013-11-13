@@ -6,12 +6,26 @@
 #include <cerrno>
 
 
+/*
+ *      Constructeur du Serveur, initialise la socket.
+ *
+ */
 
 Server::Server()
 {
     sock=socket(AF_INET,SOCK_STREAM,0);
     taille=sizeof(csin);
 }
+
+
+/*
+ *      Destructeur du Serveur
+ *          - Vide la liste de Channels
+ *          - Vide la liste de Clients
+ *          - Ferme toutes les connexions
+ *
+ */
+
 
 Server::~Server()
 {
@@ -26,6 +40,13 @@ Server::~Server()
 
     closeAll();
 }
+
+/*
+ *      Init
+ *          - Execute le BIND et le LISTEN pour la socket Serveur
+ *
+ */
+
 
 void Server::init(unsigned port)
 {
@@ -46,7 +67,15 @@ void Server::init(unsigned port)
     }
 }
 
-int Server::conect()
+
+/*
+ *      Connect
+ *          - Accepte la connexion d'un Client
+ *          - Renvoie la socket correspondante
+ *
+ */
+
+int Server::connect()
 {
     int test = accept(sock,(struct sockaddr *) &csin, &taille);
     if (test == -1)
@@ -54,10 +83,24 @@ int Server::conect()
     return test;
 }
 
+
+/*
+ *      GetSock
+ *          - Renvoie la socket du Serveur
+ *
+ */
+
 int Server::getSock() const
 {
     return sock;
 }
+
+
+/*
+ *      Init_sockaddr
+ *          - Remplit les champs de la structure sockaddr_in du Serveur
+ *
+ */
 
 void Server::init_sockaddr(sockaddr_in *name, const char *hostname, uint16_t port)
 {
@@ -71,8 +114,16 @@ void Server::init_sockaddr(sockaddr_in *name, const char *hostname, uint16_t por
         fprintf (stderr, "Unknown host %s.\n", hostname);
         exit (EXIT_FAILURE);
     }
-    name->sin_addr = *(struct in_addr *) hostinfo->h_addr_list[0]; /* Le dernier champs de la structure est garni */
+    name->sin_addr = *(struct in_addr *) hostinfo->h_addr_list[0]; /* Le dernier champ de la structure est garni */
 }
+
+
+/*
+ *      CloseSockServ
+ *          - Ferme la socket du Serveur
+ *
+ */
+
 
 void Server::closeSockServ()
 {
@@ -80,25 +131,37 @@ void Server::closeSockServ()
 }
 
 
+/*
+ *      Routine
+ *          Routine du serveur qui consiste à
+ *          - Ajouter les sockets des Clients, la socket Serveur et l'entrée standard à readfd
+ *          - Faire un select
+ *          - Tester la socket Serveur pour vérifier l'arrivée d'un nouveau Client
+ *          - Tester l'entrée standard pour vérifier l'arrivée de la commande quit
+ *          - Tester les sockets Clients et exécuter leurs commandes
+ *
+ */
+
+
 const string Server::routine()
 {
-
+//Ajouter les sockets des Clients, la socket Serveur et l'entrée standard à readfd
     addAllSockets(&readfd);
-
+//Faire un select
     if ( select(Client::maxSock,&readfd, NULL, NULL, NULL) == -1) {
         perror("Select ");
         closeAllSockets();
         closeSockServ();
         exit(1);
     }
-
+//Tester la socket Serveur pour vérifier l'arrivée d'un nouveau Client
     if (FD_ISSET(getSock(), &readfd))
     {
-        Client *client = new Client(conect());
+        Client *client = new Client(connect());
         clients.push_back(client);
         printf("Client connecté\n");
     }
-
+//Tester l'entrée standard pour vérifier l'arrivée de la commande quit
     if (FD_ISSET(0, &readfd))
     {
         char buf[4096];
@@ -118,7 +181,7 @@ const string Server::routine()
         }
 
     }
-
+//Tester les sockets Clients et exécuter leurs commandes
     for(list<Client*>::iterator i=clients.begin(); i != clients.end() ; ++i)
         if (FD_ISSET((*i)->getSock(), &readfd))
         {
@@ -135,11 +198,27 @@ const string Server::routine()
 
 }
 
+/*
+ *      CloseAll
+ *          - Ferme toutes les connexions au serveur
+ *
+ */
+
 void Server::closeAll()
 {
     closeAllSockets();
     closeSockServ();
 }
+
+/*
+ *      AddAllSockets
+ *          - Met à zéro readfd
+ *          - Ajoute la socket Serveur à readfd
+ *          - Ajoute l'entrée standard à readfd
+ *          - Ajoute toutes les sockets des Clients à readfd
+ *
+ */
+
 
 void Server::addAllSockets(fd_set *readfd)
 {
@@ -154,6 +233,12 @@ void Server::addAllSockets(fd_set *readfd)
     }
 }
 
+
+/*
+ *      WriteToClt
+ *          - Envoie la trame message au Client nameClt
+ *
+ */
 
 
 int Server::writeToClt(const char *message, const string nameClt) const
@@ -173,6 +258,13 @@ int Server::writeToClt(const char *message, const string nameClt) const
     }
     return -1;
 }
+
+/*
+ *      Receive
+ *          - Vérifie le nombre d'arguments ainsi que les droits
+ *          - Interprète la Commande
+ *
+ */
 
 
 Commande *Server::receive(Commande *cde, const string nameClt)
@@ -682,6 +774,13 @@ Commande *Server::receive(Commande *cde, const string nameClt)
     return newCde;
 }
 
+/*
+ *      Send
+ *          - Envoie aux Clients concernés la répercussion d'une commande reçue (message, message d'erreur,...)
+ *
+ *
+ */
+
 
 void Server::send(Commande *cde)
 {
@@ -743,12 +842,16 @@ void Server::send(Commande *cde)
     }
 }
 
+/*
+ *      CloseAllsockets
+ *          - Ferme chaque socket de chaque Client
+ *
+ *
+ */
 
 
 void Server::closeAllSockets()
-{/*
-  Ferme chaque socket de chaque client de la liste client.
- */
+{
     for(list<Client*>::iterator i=clients.begin() ; i != clients.end() ; ++i)
     {
         if (close((*i)->getSock()) == -1)
@@ -758,6 +861,12 @@ void Server::closeAllSockets()
         }
     }
 }
+
+/*
+ *      ChannelByName
+ *          - Renvoie un pointeur sur un Channel, trouvé grâce à son nom
+ *
+ */
 
 
 Channel* Server::channelByName(string chanName)
@@ -769,10 +878,29 @@ Channel* Server::channelByName(string chanName)
     return NULL;
 }
 
+
+/*
+ *      AddChan
+ *          - Ajoute le Channel chan à la liste de Channels
+ *
+ */
+
+
 void Server::addChan(Channel *chan)
 {
     channels.push_back(chan);
 }
+
+/*
+ *      WhatIsTrame
+ *          - Lit la taille de la trame reçue, son ID et son type
+ *          - Lit les arguments de la trame
+ *          - Crée une Commande et ajoute chaque argument dans le vector d'Arguments de la Commande
+ *          - Renvoie la pointeur sur la commande
+ *
+ *      À faire : Suppression des Commandes créées non implémentée
+ *
+ */
 
 
 Commande* Server::whatIsTrame(int sock)
@@ -804,6 +932,11 @@ Commande* Server::whatIsTrame(int sock)
     return Cde;
 }
 
+/*
+ *      SearchClt
+ *          - Renvoie une liste de Clients qui ont le motif motifClt dans leur nom
+ *
+ */
 
 list<Client*> Server::searchClt(const string motifClt) const
 {
@@ -822,6 +955,14 @@ list<Client*> Server::searchClt(const string motifClt) const
     return cltSearch;
 }
 
+/*
+ *      IsClt
+ *          - Vérifie l'existence d'un Client (par son nom) dans la liste de Clients
+ *
+ *
+ */
+
+
 bool Server::isClt(const string nameClt) const
 {
     for(list<Client*>::const_iterator it=clients.begin() ; it!=clients.end() ; it++)
@@ -829,6 +970,12 @@ bool Server::isClt(const string nameClt) const
             return true;
     return false;
 }
+
+/*
+ *      SearchChan
+ *          - Renvoie une liste de Channels qui ont le motif motifChan dans leur nom
+ *
+ */
 
 
 list<Channel*> Server::searchChan(const string motifChan) const
@@ -850,6 +997,13 @@ list<Channel*> Server::searchChan(const string motifChan) const
     return chanSearch;
 }
 
+/*
+ *      ChangeNameClt
+ *          - Cherche un le Client répondant au nom de nameClt
+ *          - Remplace son nom par newName
+ *
+ */
+
 
 int Server::changeNameClt(const string nameClt ,const string newName)
 {
@@ -865,6 +1019,13 @@ int Server::changeNameClt(const string nameClt ,const string newName)
     }
     return -1;
 }
+
+/*
+ *      Broadcast
+ *          - Envoie la trame message à tous les Clients du Serveur
+ *
+ *
+ */
 
 void Server::broadcast(const char *message)
 {
