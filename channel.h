@@ -10,6 +10,16 @@ using namespace std;
 
 class Client ;
 
+/*
+ *      Classe Channel
+ *      Stocke
+ *          - Le nom du Channel
+ *          - Le nom du Client op
+ *          - Le topic du Channel
+ *          - La liste des Clients
+ *          - La liste des Clients bannnis
+ *
+ */
 
 class Channel
 {
