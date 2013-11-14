@@ -12,18 +12,12 @@ using namespace std;
 
 
 
-/*
-  Ajoute chaque socket de chauque client de la liste client,
-  dans readfd.
- */
-
-
-
-
 int main(int argc, char **argv)
 {
     Server serv;
     unsigned port;
+
+//Vérification des arguments passés au programme
 
     if(argc >= 2 )
         if ( sscanf(argv[1],"%u",&port) != 1  )
@@ -40,6 +34,7 @@ int main(int argc, char **argv)
 
     cout << "Port ouvert : " << port << endl;
 
+//Chargement du fichiers d'erreurs
 
     Commande::initErrors();
 
@@ -47,6 +42,8 @@ int main(int argc, char **argv)
 
     if (serv.getSock()+1 > Client::maxSock)
         Client::maxSock = serv.getSock()+1;
+
+//Routine du serveur
 
     while(serv.routine() != "quit");
 
