@@ -177,6 +177,7 @@ const string Server::routine()
             cde->addArg("Fermeture du serveur dans 30 secondes !");
             send(cde);
             sleep(30);
+            delete(cde);
             return "quit";
         }
 
@@ -192,6 +193,9 @@ const string Server::routine()
             cde1 = receive(cde,(*i)->getName());
 
             send(cde1);
+
+            delete(cde);
+            delete(cde1);
         }
 
     return "continue";
@@ -664,6 +668,8 @@ Commande *Server::receive(Commande *cde, const string nameClt)
             break;
         }
 
+        newCde->setDest(cde->getArg(1));
+
         newCde->addArg(nameClt);
         newCde->addArg(cde->getArg(1));
 
@@ -697,7 +703,14 @@ Commande *Server::receive(Commande *cde, const string nameClt)
         newCde->addArg(nameClt);
 
         if (chan->isEmpty())
+        {
+            cout<<"Channel vide !"<<endl;
+            suppChan(cde->getArg(1));
+            cout<<"Suppression de la liste ok"<<endl;
             chan->~Channel();
+            cout<<"Suppression OK"<<endl;
+            newCde->setError("Suppression du channel !",255,nameClt);
+        }
 
         break;
 
@@ -955,6 +968,9 @@ list<Client*> Server::searchClt(const string motifClt) const
     return cltSearch;
 }
 
+
+
+
 /*
  *      IsClt
  *          - Vérifie l'existence d'un Client (par son nom) dans la liste de Clients
@@ -995,6 +1011,17 @@ list<Channel*> Server::searchChan(const string motifChan) const
         cout<<"Erreur : "<<errno<<endl;
 
     return chanSearch;
+}
+
+void Server::suppChan(const string chanName)
+{
+    for (list<Channel*>::iterator it=channels.begin() ; it!=channels.end() ; it++)
+        if ((*it)->getChanName() == chanName)
+        {
+            channels.erase(it);
+            break;
+        }
+    return;
 }
 
 /*

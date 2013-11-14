@@ -66,6 +66,7 @@ public:
     bool isClt(const string nameClt) const;
 
     list<Channel*> searchChan(const string motifChan) const;
+    void suppChan(const string chan);
 
     int changeNameClt(const string nameClt, const string newName);
 
