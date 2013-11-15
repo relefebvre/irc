@@ -22,8 +22,8 @@ Channel::Channel(string chanName,string op)
 
 /*
  *      Destructeur de Channel
- *          - Supprime les Clients utilisant le Channel (C'est peut-être bancal)
- *          - Supprime les Clients bannis du Channel (Ca aussi)
+ *          - Supprime les Clients utilisant le Channel
+ *          - Supprime les Clients bannis du Channel
  *          - Vide les listes
  *
  */
